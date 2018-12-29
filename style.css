@@ -1,0 +1,146 @@
+* {
+  font-family: 'Liberation Serif', Helvetica, Arial, sans-serif;
+  font-size: 1em;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+body {
+  background-color: rgb(250, 250, 250);
+}
+
+#menu {
+  margin-left: 2%;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+#menu div {
+  display: inline;
+  margin-right: 40px;
+}
+
+#editor {
+  overflow-y: auto;
+  color: rgb(0, 4, 53);
+  background-color: white;
+  display: block;
+  float: left;
+  width: 47%;
+  height: 90vh;
+  margin-left: 2%;
+}
+
+#editor input {
+  border: none;
+  width: 100%;
+  background-color: rgb(246, 253, 255);
+  color: rgb(0, 4, 53);
+  margin: 0;
+  padding: 8px 10px 8px 10px;
+}
+
+#preview {
+  color: rgb(0, 4, 53);
+  background-color: white;
+  display: block;
+  float: right;
+  width: 47%;
+  height: 90vh;
+  margin-right: 2%;
+}
+
+textarea {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  color: rgb(0, 4, 53);
+  line-height: 1.3em;
+  border: none;
+  overflow: auto;
+  /* outline: none; */
+  resize: none;
+  padding: 10px
+}
+
+ul {
+  list-style-type: none;
+  /* margin-bottom: 5px; */
+  padding: 10px;
+  overflow: auto;
+  outline: none;
+  margin: 0;
+}
+
+/* 
+ul.selected {
+  background-color: rgb(250, 250, 250);
+}
+
+ul button {
+  visibility: hidden;
+}
+
+ul:hover button {
+  visibility: visible;
+}
+
+ul:hover {
+  background-color: rgb(250, 250, 250);
+} */
+
+ul:focus {
+  background-color: rgb(250, 250, 250);
+}
+
+li {
+  line-height: 1em;
+}
+
+li button {
+  margin-left: 10px;
+}
+
+#editor button {
+  border: none;
+  background: none;
+  color: rgba(0, 4, 53, 0.4);
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0;
+  margin-right: 15px;
+  margin-bottom: 5px;
+}
+
+#editor button:hover {
+  color: rgba(0, 4, 53, 0.7);
+}
+
+#menuButtons {
+  float: right;
+}
+
+#menuButtons button {
+  margin-left: 10px;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ddd;
+  margin: 1em 0;
+  padding: 0;
+}
+
+/* #hiddenInputs{
+  opacity: 0;
+  position: absolute;
+} */
