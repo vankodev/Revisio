@@ -5,9 +5,9 @@ var editor = document.getElementById('editor');
 function displayEditorContent() {
   editor.innerHTML = '';
   textArray.forEach(function(sentence, index) {
-    createUlElement(index);
-    createLiElement(sentence);
-    displayByParagraphs(ulElement, liElement);
+    var ulElement = createUlElement(index);
+    var liElement = createLiElement(sentence);
+    displayByParagraphs(sentence, ulElement, liElement);
   });
 }
 
@@ -15,7 +15,7 @@ function createUlElement(index) {
   var ulElement = document.createElement('ul');
   ulElement.className = index;
   ulElement.tabIndex = -1;
-  editor.appentChild(ulElement);
+  editor.appendChild(ulElement);
   return ulElement;
 }
 
@@ -26,7 +26,7 @@ function createLiElement(sentence) {
   return liElement;
 }
 
-function displayByParagraphs(ulElement, liElement) {
+function displayByParagraphs(sentence, ulElement, liElement) {
   if (sentence == '<P>') {
     var separator = document.createElement('hr');
     ulElement.appendChild(separator);
@@ -72,8 +72,14 @@ function makeNewParagraph(joinedText) {
 /////////////////////////////
 function tokenizePreviewText() {
   textArray = [];
+  var textareaText = document.querySelector('textarea').value;
+  tokenizeTextarea(textareaText);
+  displayEditorContent();
+}
+
+function tokenizeTextarea(textareaText) {
   var tokenizeParagraphsRegex = /\n/;
-  var paragraphArray = text.split(tokenizeParagraphsRegex);
+  var paragraphArray = textareaText.split(tokenizeParagraphsRegex);
   tokenizeParagraphs(paragraphArray);
   textArray.shift();
 }
@@ -84,12 +90,12 @@ function tokenizeParagraphs(paragraphArray) {
       var tokenizeSentencesRegex = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
       var sentenceArray = paragraph.split(tokenizeSentencesRegex);
       textArray.push(['<P>']);
-      tokenizeSentences();
+      tokenizeSentences(sentenceArray);
     }
   });
 }
 
-function tokenizeSentences() {
+function tokenizeSentences(sentenceArray) {
   sentenceArray.forEach(function(sentence) {
     textArray.push([sentence]);
   });
@@ -102,23 +108,31 @@ function copyToClipboard() {
 }
 
 //////////////////////////////////////////
-editor.addEventListener('blur', function() {
-  var target = event.target;
-  if (target.matches('#sentenceInput')) {
-    createSentenceFromInput(target);
-  }
-}, true);
+// editor.addEventListener('blur', function(event) {
+//   var target = event.target;
+//   if (target.matches('#sentenceInput')) {
+//     createSentenceFromInput(target);
+//   }
+// }, true);
 
 function createSentenceFromInput(target) {
   sentencePosition = parseInt(target.previousSibling.className) + 1;
-  handlers.addSentence(sentencePosition, target.value);
+  sentenceText = target.value;
+  addSentence(sentencePosition, sentenceText);
+}
+
+function addSentence(sentencePosition, sentenceText) {
+  if (sentenceText !== '') {
+    this.textArray.splice(sentencePosition, 0, [sentenceText]);
+  }
+  displayEditorContent();
 }
 
 editor.addEventListener('keydown', function(event) {
   var target = event.target;
-  var selectedSentence = parseInt(target.className);
+  var sentencePosition = parseInt(target.className);
   var firstSentencePosition = 0;
-  var lastSentencePosition = textEditor.textArray.length - 1;
+  var lastSentencePosition = textArray.length - 1;
 
   if (event.defaultPrevented) {
     return;
@@ -127,22 +141,20 @@ editor.addEventListener('keydown', function(event) {
   switch (event.key) {
     case "Up":
     case "ArrowUp":
-      if (target.matches('ul') &&  selectedSentence !== firstSentencePosition) {
+      if (target.matches('ul') &&  sentencePosition !== firstSentencePosition) {
         if (event.getModifierState('Alt')) {
-          moveSentenceUp(selectedSentence);
-        } else {
-          moveSelectionUp(selectedSentence);
+          moveSentenceUp(sentencePosition);
         }
+        moveSelectionUp(sentencePosition);
       }
       break;
     case "Down":
     case "ArrowDown":
-      if (target.matches('ul') && selectedSentence !== lastSentencePosition) {
+      if (target.matches('ul') && sentencePosition !== lastSentencePosition) {
         if (event.getModifierState('Alt')) {
-          moveSentenceDown(selectedSentence);
-        } else {
-          moveSelectionDown(selectedSentence);
+          moveSentenceDown(sentencePosition);
         }
+        moveSelectionDown(sentencePosition);
       }
       break;
     case "Enter":
@@ -163,19 +175,24 @@ editor.addEventListener('keydown', function(event) {
         target.blur();
       }
       if (target.matches('#sentenceInput')) {
+        previousSentencePosition = target.previousSibling.className;
+        console.log(previousSentencePosition);
         target.parentNode.removeChild(target);
+        previousSentence = document.querySelector('ul.' + CSS.escape(previousSentencePosition));
+        console.log(previousSentence);
+        previousSentence.focus();
       }
       break;
     case "Delete":
       if (target.matches('ul')) {
-        deleteSentence(selectedSentence);
-        if (selectedSentence.firstChild.tagName === 'HR') {
-          selectedSentence = selectedSentence.previousSibling;
-          if (selectedSentence.firstChild.tagName === 'HR') {
-            deleteSentence(selectedSentence);
+        deleteSentence(sentencePosition);
+        if (sentencePosition.firstChild.tagName === 'HR') {
+          sentencePosition = sentencePosition.previousSibling;
+          if (sentencePosition.firstChild.tagName === 'HR') {
+            deleteSentence(sentencePosition);
           }
         }
-        selectedSentence.focus();
+        sentencePosition.focus();
       }
       break;
     default:
@@ -194,38 +211,38 @@ function createSentenceInput(target) {
   target.nextSibling.focus();
 }
 
-function deleteSentence(selectedSentence) {
-  textArray.splice(selectedSentence, 1);
+function deleteSentence(sentencePosition) {
+  textArray.splice(sentencePosition, 1);
   displayEditorContent();
 }
 
-function moveSentenceUp(selectedSentence) {
-  previousSentencePosition = selectedSentence - 1;
-  textArray.move(selectedSentence, previousSentencePosition);
+function moveSentenceUp(sentencePosition) {
+  previousSentencePosition = sentencePosition - 1;
+  textArray.move(sentencePosition, previousSentencePosition);
   displayEditorContent();
 }
 
-function moveSelectionUp(selectedSentence) {
-  selectedSentence = selectedSentence.previousSibling;
-  if (selectedSentence.firstChild.tagName === 'HR') {
-    moveSelectionUp(selectedSentence);
-  } else {
-    selectedSentence.focus();
+function moveSelectionUp(sentencePosition) {
+  previousSentence = document.querySelector('ul.' + CSS.escape(sentencePosition - 1));
+  if (previousSentence.firstChild.tagName === 'HR') {
+    previousSentence = document.querySelector('ul.' + CSS.escape(sentencePosition - 2));
   }
+  previousSentence.focus();
 } 
 
-function moveSentenceDown(selectedSentence) {
-  nextSentencePosition = selectedSentence + 1;
-  textArray.move(selectedSentence, nextSentencePosition);
+function moveSentenceDown(sentencePosition) {
+  nextSentencePosition = sentencePosition + 1;
+  textArray.move(sentencePosition, nextSentencePosition);
   displayEditorContent();
 }
 
-function moveSelectionDown(selectedSentence) {
-  selectedSentence = selectedSentence.nextSibling;
-  if (selectedSentence.firstChild.tagName === 'HR') {
-    moveSelectionDown(selectedSentence);
-  } else {
-    selectedSentence.focus();
+function moveSelectionDown(sentencePosition) {
+  nextSentence = document.querySelector('ul.' + CSS.escape(sentencePosition + 1));
+  if (nextSentence.firstChild.tagName === 'HR') {
+    nextSentence = document.querySelector('ul.' + CSS.escape(sentencePosition + 2));
   }
-
+  nextSentence.focus();
 }
+
+// Placeholder text for the preview window
+document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
