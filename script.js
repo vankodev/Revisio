@@ -107,13 +107,13 @@ function copyToClipboard() {
   document.execCommand('copy');
 }
 
-//////////////////////////////////////////
-// editor.addEventListener('blur', function(event) {
-//   var target = event.target;
-//   if (target.matches('#sentenceInput')) {
-//     createSentenceFromInput(target);
-//   }
-// }, true);
+////////////////////////////////////////
+editor.addEventListener('blur', function(event) {
+  var target = event.target;
+  if (target.matches('#sentenceInput')) {
+    createSentenceFromInput(target);
+  }
+}, true);
 
 function createSentenceFromInput(target) {
   sentencePosition = parseInt(target.previousSibling.className) + 1;
@@ -166,8 +166,8 @@ editor.addEventListener('keydown', function(event) {
         }
       }
       if (target.matches('#sentenceInput')) {
-        // target.blur();
-        target.nextSibling.focus();
+        target.blur();
+        //target.nextSibling.focus();
       }
       break;
     case "Escape":
@@ -175,24 +175,13 @@ editor.addEventListener('keydown', function(event) {
         target.blur();
       }
       if (target.matches('#sentenceInput')) {
-        previousSentencePosition = target.previousSibling.className;
-        console.log(previousSentencePosition);
-        target.parentNode.removeChild(target);
-        previousSentence = document.querySelector('ul.' + CSS.escape(previousSentencePosition));
-        console.log(previousSentence);
-        previousSentence.focus();
+        removeSentenceInput(target);
       }
       break;
     case "Delete":
       if (target.matches('ul')) {
         deleteSentence(sentencePosition);
-        if (sentencePosition.firstChild.tagName === 'HR') {
-          sentencePosition = sentencePosition.previousSibling;
-          if (sentencePosition.firstChild.tagName === 'HR') {
-            deleteSentence(sentencePosition);
-          }
-        }
-        sentencePosition.focus();
+        selectSentence(sentencePosition);
       }
       break;
     default:
@@ -202,6 +191,21 @@ editor.addEventListener('keydown', function(event) {
 
   event.preventDefault();
 }, true);
+
+function removeSentenceInput(target) {
+  previousSentencePosition = target.previousSibling.className;
+  target.parentNode.removeChild(target);
+  previousSentence = document.querySelector('ul.' + CSS.escape(previousSentencePosition));
+  previousSentence.focus();
+}
+
+function selectSentence(sentencePosition) {
+  var selectedSentence = document.querySelector('ul.' + CSS.escape(sentencePosition));
+  if (!selectedSentence) {
+    selectedSentence = document.querySelector('ul.' + CSS.escape(sentencePosition - 1));
+  }
+  selectedSentence.focus();
+}
 
 function createSentenceInput(target) {
   var sentenceInput = document.createElement('input');
