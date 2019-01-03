@@ -166,8 +166,7 @@ editor.addEventListener('keydown', function(event) {
         }
       }
       if (target.matches('#sentenceInput')) {
-        target.blur();
-        //target.nextSibling.focus();
+        createSentence(target);
       }
       break;
     case "Escape":
@@ -185,12 +184,18 @@ editor.addEventListener('keydown', function(event) {
       }
       break;
     default:
-
       return;
   }
 
   event.preventDefault();
 }, true);
+
+function createSentence(target) {
+  var sentencePosition = parseInt(target.nextSibling.className);
+  target.blur();
+  var selectedSentence = document.querySelector('ul.' + CSS.escape(sentencePosition));
+  selectedSentence.focus();
+}
 
 function removeSentenceInput(target) {
   previousSentencePosition = target.previousSibling.className;
