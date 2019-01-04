@@ -1,6 +1,42 @@
 var textArray = [];
 var editor = document.getElementById('editor');
 
+function addSentence(sentencePosition, sentenceText) {
+  if (sentenceText !== '') {
+    textArray.splice(sentencePosition, 0, [sentenceText]);
+  }
+  displayEditorContent();
+}
+
+function editSentence(sentencePosition, sentenceText) {
+  if (sentenceText !== '') {
+    textArray[sentencePosition].push(sentenceText);
+  }
+  displayEditorContent();
+}
+
+function deleteSentence(sentencePosition) {
+  textArray.splice(sentencePosition, 1);
+  displayEditorContent();
+}
+
+function moveSentenceUp(sentencePosition) {
+  previousSentencePosition = sentencePosition - 1;
+  textArray.move(sentencePosition, previousSentencePosition);
+  displayEditorContent();
+}
+
+function moveSentenceDown(sentencePosition) {
+  nextSentencePosition = sentencePosition + 1;
+  textArray.move(sentencePosition, nextSentencePosition);
+  displayEditorContent();
+}
+
+function selectBestSentence(sentencePosition, versionPosition) {
+  textArray[sentencePosition].move(versionPosition, - 1);
+  displayEditorContent();
+}
+
 ///////////////////////////////
 function displayEditorContent() {
   editor.innerHTML = '';
@@ -33,6 +69,21 @@ function displayByParagraphs(sentence, ulElement, liElement) {
   } else {
     ulElement.appendChild(liElement);
   }
+}
+
+function expandSentenceVersions(target, sentencePosition) {
+  // hideSentenceVersions();
+  displaySentenceVersions(target, sentencePosition);
+}
+
+function displaySentenceVersions(target, sentencePosition) {
+  target.removeChild(target.firstChild);
+  textArray[sentencePosition].forEach(function(version, index) {
+    var sentenceVersion = document.createElement('li');
+    sentenceVersion.className = index;
+    sentenceVersion.textContent = version;
+    target.appendChild(sentenceVersion);
+  });
 }
 
 //////////////////////
@@ -121,13 +172,6 @@ function createSentenceFromInput(target) {
   addSentence(sentencePosition, sentenceText);
 }
 
-function addSentence(sentencePosition, sentenceText) {
-  if (sentenceText !== '') {
-    this.textArray.splice(sentencePosition, 0, [sentenceText]);
-  }
-  displayEditorContent();
-}
-
 editor.addEventListener('keydown', function(event) {
   var target = event.target;
   var sentencePosition = parseInt(target.className);
@@ -162,7 +206,7 @@ editor.addEventListener('keydown', function(event) {
         if (event.getModifierState('Alt')) {
           createSentenceInput(target);
         } else {
-          // TODO: Edit the sentence
+          expandSentenceVersions(target, sentencePosition);
         }
       }
       if (target.matches('#sentenceInput')) {
@@ -220,17 +264,6 @@ function createSentenceInput(target) {
   target.nextSibling.focus();
 }
 
-function deleteSentence(sentencePosition) {
-  textArray.splice(sentencePosition, 1);
-  displayEditorContent();
-}
-
-function moveSentenceUp(sentencePosition) {
-  previousSentencePosition = sentencePosition - 1;
-  textArray.move(sentencePosition, previousSentencePosition);
-  displayEditorContent();
-}
-
 function moveSelectionUp(sentencePosition) {
   previousSentence = document.querySelector('ul.' + CSS.escape(sentencePosition - 1));
   if (previousSentence.firstChild.tagName === 'HR') {
@@ -238,12 +271,6 @@ function moveSelectionUp(sentencePosition) {
   }
   previousSentence.focus();
 } 
-
-function moveSentenceDown(sentencePosition) {
-  nextSentencePosition = sentencePosition + 1;
-  textArray.move(sentencePosition, nextSentencePosition);
-  displayEditorContent();
-}
 
 function moveSelectionDown(sentencePosition) {
   nextSentence = document.querySelector('ul.' + CSS.escape(sentencePosition + 1));
@@ -254,4 +281,14 @@ function moveSelectionDown(sentencePosition) {
 }
 
 // Placeholder text for the preview window
-document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
+// document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
+
+// Placeholder text for the editor window
+for (var i = 0; i < 3; i++) {
+  sentence = 'This is literaly sentence number ' + (i + 1);
+  textArray.push([sentence])
+  for (var j = 1; j < 3; j++) {
+    version = 'This is my version number ' + j;
+    editSentence(i, version);
+  }
+}
