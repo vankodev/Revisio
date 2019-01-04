@@ -237,7 +237,14 @@ function createSentenceInput(target) {
 }
 
 function createSentence(target) {
-  var sentencePosition = parseInt(target.nextSibling.id);
+  var sentencePosition;
+  
+  if (target.nextSibling) {
+    sentencePosition = parseInt(target.nextSibling.id);
+  } else {
+    sentencePosition = parseInt(target.previousSibling.id) + 1;
+  }
+  
   createSentenceFromInput(target);
   var selectedSentence = document.getElementById(sentencePosition);
   selectedSentence.focus();
