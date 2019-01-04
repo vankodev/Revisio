@@ -244,7 +244,7 @@ function createSentence(target) {
 function removeSentenceInput(target) {
   previousSentencePosition = target.previousSibling.id;
   target.parentNode.removeChild(target);
-  previousSentence = document.querySelector('ul.' + CSS.escape(previousSentencePosition));
+  previousSentence = document.getElementById(previousSentencePosition);
   previousSentence.focus();
 }
 
@@ -286,7 +286,7 @@ document.querySelector('textarea').value = 'There are people who think that the 
 // Placeholder text for the editor window
 for (var i = 0; i < 3; i++) {
   sentence = 'This is literaly sentence number ' + (i + 1);
-  textArray.push([sentence])
+  textArray.push([sentence]);
   for (var j = 1; j < 3; j++) {
     version = 'This is my version number ' + j;
     editSentence(i, version);
