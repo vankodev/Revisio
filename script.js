@@ -162,15 +162,9 @@ function copyToClipboard() {
 editor.addEventListener('blur', function(event) {
   var target = event.target;
   if (target.matches('#sentenceInput')) {
-    createSentenceFromInput(target);
+    target.focus();
   }
 }, true);
-
-function createSentenceFromInput(target) {
-  sentencePosition = parseInt(target.previousSibling.id) + 1;
-  sentenceText = target.value;
-  addSentence(sentencePosition, sentenceText);
-}
 
 editor.addEventListener('keydown', function(event) {
   var target = event.target;
@@ -234,11 +228,25 @@ editor.addEventListener('keydown', function(event) {
   event.preventDefault();
 }, true);
 
+function createSentenceInput(target) {
+  var sentenceInput = document.createElement('input');
+  sentenceInput.id = 'sentenceInput';
+  sentenceInput.type = 'text';
+  target.after(sentenceInput);
+  target.nextSibling.focus();
+}
+
 function createSentence(target) {
   var sentencePosition = parseInt(target.nextSibling.id);
-  target.blur();
+  createSentenceFromInput(target);
   var selectedSentence = document.getElementById(sentencePosition);
   selectedSentence.focus();
+}
+
+function createSentenceFromInput(target) {
+  sentencePosition = parseInt(target.previousSibling.id) + 1;
+  sentenceText = target.value;
+  addSentence(sentencePosition, sentenceText);
 }
 
 function removeSentenceInput(target) {
@@ -246,22 +254,6 @@ function removeSentenceInput(target) {
   target.parentNode.removeChild(target);
   previousSentence = document.getElementById(previousSentencePosition);
   previousSentence.focus();
-}
-
-function selectSentence(sentencePosition) {
-  var selectedSentence = document.getElementById(sentencePosition);
-  if (!selectedSentence) {
-    selectedSentence = document.getElementById(sentencePosition - 1);
-  }
-  selectedSentence.focus();
-}
-
-function createSentenceInput(target) {
-  var sentenceInput = document.createElement('input');
-  sentenceInput.id = 'sentenceInput';
-  sentenceInput.type = 'text';
-  target.after(sentenceInput);
-  target.nextSibling.focus();
 }
 
 function moveSelectionUp(sentencePosition) {
@@ -278,6 +270,14 @@ function moveSelectionDown(sentencePosition) {
     nextSentence = document.getElementById(sentencePosition + 2);
   }
   nextSentence.focus();
+}
+
+function selectSentence(sentencePosition) {
+  var selectedSentence = document.getElementById(sentencePosition);
+  if (!selectedSentence) {
+    selectedSentence = document.getElementById(sentencePosition - 1);
+  }
+  selectedSentence.focus();
 }
 
 // Placeholder text for the preview window
