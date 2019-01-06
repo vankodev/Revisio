@@ -98,13 +98,10 @@ function displaySentenceVersions(target, sentencePosition) {
     target.appendChild(sentenceVersion);
   });
 
-  var lastSentenceVersion = target.lastChild;
-  lastSentenceVersion.focus();
+  var versionInput = createVersionInput();
+  target.appendChild(versionInput);
+  target.lastChild.focus();
 
-  if (sentenceArray.length === 1) {
-    var editSentenceHelp = createEditSentenceHelp();
-    target.appendChild(editSentenceHelp);
-  }
 }
 
 function createSentenceVersions(version, index) {
@@ -115,11 +112,11 @@ function createSentenceVersions(version, index) {
   return sentenceVersion;
 }
 
-function createEditSentenceHelp(target) {
-  var editSentenceHelp = document.createElement('span');
-  editSentenceHelp.id = editSentenceHelp;
-  editSentenceHelp.textContent = 'Press Alt + Enter to edit sentence.';
-  return editSentenceHelp;
+function createVersionInput() {
+  var versionInput = document.createElement('input');
+  versionInput.id = 'versionInput';
+  versionInput.type = 'text';
+  return versionInput;
 }
 
 //////////////////////
