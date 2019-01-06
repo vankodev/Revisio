@@ -15,14 +15,13 @@ body {
 }
 
 #menu {
-  margin-left: 2%;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  width: 96%;
+  float: right;
+  margin: 10px 2%;
 }
 
 #menu div {
   display: inline;
-  margin-right: 40px;
 }
 
 #editor {
@@ -31,7 +30,7 @@ body {
   background-color: white;
   display: block;
   float: left;
-  width: 47%;
+  width: 60%;
   height: 90vh;
   margin-left: 2%;
 }
@@ -54,7 +53,7 @@ body {
   background-color: white;
   display: block;
   float: right;
-  width: 47%;
+  width: 34%;
   height: 90vh;
   margin-right: 2%;
 }
@@ -69,36 +68,17 @@ textarea {
   line-height: 1.4em;
   border: none;
   overflow: auto;
-  /* outline: none; */
   resize: none;
-  padding: 10px
+  padding: 10px 15px;
 }
 
 ul {
   list-style-type: none;
-  /* margin-bottom: 5px; */
   padding: 10px;
   overflow: auto;
   outline: none;
   margin: 0;
 }
-
-/* 
-ul.selected {
-  background-color: rgb(250, 250, 250);
-}
-
-ul button {
-  visibility: hidden;
-}
-
-ul:hover button {
-  visibility: visible;
-}
-
-ul:hover {
-  background-color: rgb(250, 250, 250);
-} */
 
 ul:focus {
   background-color: rgb(250, 250, 250);
@@ -106,10 +86,12 @@ ul:focus {
 
 li {
   line-height: 1.4em;
+  padding-left: 5px;
 }
 
-li button {
-  margin-left: 10px;
+li:focus {
+  outline: none;
+  background-color: rgb(250, 250, 250);
 }
 
 #editor button {
@@ -143,9 +125,3 @@ hr {
   margin: 1em 0;
   padding: 0;
 }
-
-/* #hiddenInputs{
-  opacity: 0;
-  position: absolute;
-} */
-

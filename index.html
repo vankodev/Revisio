@@ -8,24 +8,21 @@
 
 <body>
   <div id="menu">
-    <div>
-      <!-- <input id="addSentenceInput" type="text" style="width: 300px;" placeholder="Add new sentence."> -->
-    </div>
     <div id="menuButtons">
+      <button onclick='displayEditorContent()'>Refresh</button>
       <button onclick='previewText()'>Preview</button>
       <button onclick='tokenizePreviewText()'>Tokenize</button>
       <button onclick='copyToClipboard()'>Copy</button>
     </div>
   </div>
+
   <div id="editor">
   </div>
+
   <div id="preview">
     <textarea placeholder="Put your notes here and tokenize them into sentences."></textarea>
   </div>
-  <!-- <div id="hiddenInputs">
-    <input class="addSentenceInput" type="text">
-    <input class="editSentenceInput" type="text">
-  </div> -->
+
   <script src="array-prototype-move.js"></script>
   <script src="/script.js"></script>
 </body>
