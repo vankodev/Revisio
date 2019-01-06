@@ -203,6 +203,9 @@ editor.addEventListener('keydown', function(event) {
         }
         moveSelectionUp(sentencePosition);
       }
+      if (target.matches('li')) {
+        moveSelectionUp(sentencePosition);
+      }
       break;
     case "Down":
     case "ArrowDown":
@@ -210,6 +213,9 @@ editor.addEventListener('keydown', function(event) {
         if (event.getModifierState('Alt')) {
           moveSentenceDown(sentencePosition);
         }
+        moveSelectionDown(sentencePosition);
+      }
+      if (target.matches('li')) {
         moveSelectionDown(sentencePosition);
       }
       break;
@@ -232,6 +238,9 @@ editor.addEventListener('keydown', function(event) {
       if (target.matches('#sentenceInput')) {
         removeSentenceInput(target);
       }
+      if (target.matches('li')) {
+        colapseSentenceVersions(target);
+      }
       break;
     case "Delete":
       if (target.matches('ul')) {
@@ -245,6 +254,21 @@ editor.addEventListener('keydown', function(event) {
 
   event.preventDefault();
 }, true);
+
+function colapseSentenceVersions(target) {
+  var sentencePosition = findSentencePosition(target);
+  displayEditorContent();
+  var selectedSentence = document.getElementById(sentencePosition);
+  selectedSentence.focus();
+}
+
+function findSentencePosition(target) {
+  var sentence = target.parentNode;
+  var i = 0;
+  while((sentence = sentence.previousSibling) != null)
+  i++;
+  return i;
+}
 
 function createSentenceInput(target) {
   var sentenceInput = document.createElement('input');
