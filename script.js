@@ -310,18 +310,22 @@ function removeSentenceInput(target) {
 
 function moveSelectionUp(sentencePosition) {
   var previousSentence = document.getElementById(sentencePosition - 1);
-  if (previousSentence.firstChild.tagName === 'HR') {
-    previousSentence = document.getElementById(sentencePosition - 2);
+  if (previousSentence) {
+    if (previousSentence.firstChild.tagName === 'HR') {
+      previousSentence = document.getElementById(sentencePosition - 2);
+    }
+    previousSentence.focus();
   }
-  previousSentence.focus();
 } 
 
 function moveSelectionDown(sentencePosition) {
   nextSentence = document.getElementById(sentencePosition + 1);
-  if (nextSentence.firstChild.tagName === 'HR') {
-    nextSentence = document.getElementById(sentencePosition + 2);
+  if (nextSentence) {
+    if (nextSentence.firstChild.tagName === 'HR') {
+      nextSentence = document.getElementById(sentencePosition + 2);
+    }
+    nextSentence.focus();
   }
-  nextSentence.focus();
 }
 
 function selectSentence(sentencePosition) {
