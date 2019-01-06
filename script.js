@@ -8,13 +8,6 @@ function addSentence(sentencePosition, sentenceText) {
   displayEditorContent();
 }
 
-function editSentence(sentencePosition, sentenceText) {
-  if (sentenceText !== '') {
-    textArray[sentencePosition].push(sentenceText);
-  }
-  displayEditorContent();
-}
-
 function deleteSentence(sentencePosition) {
   textArray.splice(sentencePosition, 1);
   displayEditorContent();
@@ -32,7 +25,17 @@ function moveSentenceDown(sentencePosition) {
   displayEditorContent();
 }
 
-function selectBestSentence(sentencePosition, versionPosition) {
+function addVersion(versionPosition, versionText) {
+  var sentenceArray = textArray[versionPosition];
+  if (sentenceArray.length > 1) {
+    sentenceArray.shift();
+  }
+  if (versionText !== '') {
+    sentenceArray.push(versionText);
+  }
+}
+
+function selectBestVersion(sentencePosition, versionPosition) {
   textArray[sentencePosition].move(versionPosition, - 1);
   displayEditorContent();
 }
@@ -88,12 +91,20 @@ function disableUlFocus() {
 function displaySentenceVersions(target, sentencePosition) {
   target.removeAttribute('class');
   target.removeChild(target.firstChild);
-  textArray[sentencePosition].forEach(function(version, index) {
+  var sentenceArray = textArray[sentencePosition];
+  
+  sentenceArray.forEach(function(version, index) {
     var sentenceVersion = createSentenceVersions(version, index);
     target.appendChild(sentenceVersion);
   });
-  var firstSentenceVersion = document.getElementById('0');
-  firstSentenceVersion.focus();
+
+  var lastSentenceVersion = target.lastChild;
+  lastSentenceVersion.focus();
+
+  if (sentenceArray.length === 1) {
+    var editSentenceHelp = createEditSentenceHelp();
+    target.appendChild(editSentenceHelp);
+  }
 }
 
 function createSentenceVersions(version, index) {
@@ -102,6 +113,13 @@ function createSentenceVersions(version, index) {
   sentenceVersion.textContent = version;
   sentenceVersion.tabIndex = -1;
   return sentenceVersion;
+}
+
+function createEditSentenceHelp(target) {
+  var editSentenceHelp = document.createElement('span');
+  editSentenceHelp.id = editSentenceHelp;
+  editSentenceHelp.textContent = 'Press Alt + Enter to edit sentence.';
+  return editSentenceHelp;
 }
 
 //////////////////////
@@ -345,6 +363,6 @@ for (var i = 0; i < 3; i++) {
   textArray.push([sentence]);
   for (var j = 1; j < 3; j++) {
     version = 'This is my version number ' + j;
-    editSentence(i, version);
+    addVersion(i, version);
   }
 }
