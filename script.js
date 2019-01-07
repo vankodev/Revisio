@@ -25,8 +25,8 @@ function moveSentenceDown(sentencePosition) {
   displayEditorContent();
 }
 
-function addVersion(versionPosition, versionText) {
-  var sentenceArray = textArray[versionPosition];
+function addVersion(sentencePosition, versionText) {
+  var sentenceArray = textArray[sentencePosition];
   if (sentenceArray.length > 1) {
     sentenceArray.shift();
   }
@@ -77,6 +77,7 @@ function displayByParagraphs(sentence, ulElement, liElement) {
 function expandSentenceVersions(target, sentencePosition) {
   disableUlFocus();
   displaySentenceVersions(target, sentencePosition);
+  createVersionInput(target);
 }
 
 function disableUlFocus() {
@@ -91,17 +92,16 @@ function disableUlFocus() {
 function displaySentenceVersions(target, sentencePosition) {
   target.removeAttribute('class');
   target.removeChild(target.firstChild);
+  displayVersionElements(target, sentencePosition);
+}
+
+function displayVersionElements(target, sentencePosition) {
   var sentenceArray = textArray[sentencePosition];
-  
+
   sentenceArray.forEach(function(version, index) {
     var sentenceVersion = createSentenceVersions(version, index);
     target.appendChild(sentenceVersion);
   });
-
-  var versionInput = createVersionInput();
-  target.appendChild(versionInput);
-  target.lastChild.focus();
-
 }
 
 function createSentenceVersions(version, index) {
@@ -112,11 +112,24 @@ function createSentenceVersions(version, index) {
   return sentenceVersion;
 }
 
-function createVersionInput() {
+function createVersionInput(target) {
+  var versionInput = createVersionInputElement();
+  target.appendChild(versionInput);
+  target.lastChild.focus();
+}
+
+function createVersionInputElement() {
   var versionInput = document.createElement('input');
   versionInput.id = 'versionInput';
   versionInput.type = 'text';
   return versionInput;
+}
+
+function refreshSentenceVersions(target, sentencePosition) {
+  target = target.parentNode;
+  target.innerHTML = '';
+  displayVersionElements(target, sentencePosition);
+  target.lastChild.focus();
 }
 
 //////////////////////
@@ -245,6 +258,9 @@ editor.addEventListener('keydown', function(event) {
       if (target.matches('#sentenceInput')) {
         createSentence(target);
       }
+      if (target.matches('#versionInput')) {
+        createVersion(target);
+      }
       break;
     case "Escape":
       if (target.matches('ul')) {
@@ -291,6 +307,13 @@ function createSentenceInput(target) {
   sentenceInput.type = 'text';
   target.after(sentenceInput);
   target.nextSibling.focus();
+}
+
+function createVersion(target) {
+  var sentencePosition = findSentencePosition(target);
+  var versionText = target.value;
+  addVersion(sentencePosition, versionText);
+  refreshSentenceVersions(target, sentencePosition);
 }
 
 function createSentence(target) {
