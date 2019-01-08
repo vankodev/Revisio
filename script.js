@@ -1,7 +1,11 @@
 var textArray = [];
 var editor = document.getElementById('editor');
 
-function addSentence(sentencePosition, sentenceText) {
+function addSentence(sentenceText) {
+  textArray.push([sentenceText]);
+}
+
+function insertSentence(sentencePosition, sentenceText) {
   if (sentenceText !== '') {
     textArray.splice(sentencePosition, 0, [sentenceText]);
   }
@@ -298,6 +302,11 @@ editor.addEventListener('keydown', function(event) {
         selectSentence(sentencePosition);
       }
       break;
+    case "p":
+      if (target.matches('ul') && event.getModifierState('Alt')) {
+        createNewParagraph(sentencePosition);
+      }
+      break;
     default:
       return;
   }
@@ -305,11 +314,23 @@ editor.addEventListener('keydown', function(event) {
   event.preventDefault();
 }, true);
 
+function createNewParagraph(sentencePosition) {
+  var sentenceText = '<P>';
+  var lastSentencePosition = textArray.length - 1;
+
+  if (sentencePosition !== lastSentencePosition) {
+    sentencePosition = sentencePosition + 1;
+    insertSentence(sentencePosition, sentenceText);
+    var focusSentence = document.getElementById(sentencePosition - 1);
+    focusSentence.focus();
+  }
+}
+
 function colapseSentenceVersions(target) {
   var sentencePosition = findSentencePosition(target);
   displayEditorContent();
-  var selectedSentence = document.getElementById(sentencePosition);
-  selectedSentence.focus();
+  var focusSentence = document.getElementById(sentencePosition);
+  focusSentence.focus();
 }
 
 function findSentencePosition(target) {
@@ -338,8 +359,8 @@ function createVersion(target) {
 function createSentence(target) {
   var sentencePosition = selectSentencePosition(target);
   createSentenceFromInput(target);
-  var selectedSentence = document.getElementById(sentencePosition);
-  selectedSentence.focus();
+  var focusSentence = document.getElementById(sentencePosition);
+  focusSentence.focus();
 }
 
 function selectSentencePosition(target) {
@@ -355,7 +376,7 @@ function selectSentencePosition(target) {
 function createSentenceFromInput(target) {
   sentencePosition = parseInt(target.previousSibling.id) + 1;
   sentenceText = target.value;
-  addSentence(sentencePosition, sentenceText);
+  insertSentence(sentencePosition, sentenceText);
 }
 
 function removeSentenceInput(target) {
@@ -386,11 +407,11 @@ function moveSelectionDown(sentencePosition) {
 }
 
 function selectSentence(sentencePosition) {
-  var selectedSentence = document.getElementById(sentencePosition);
-  if (!selectedSentence) {
-    selectedSentence = document.getElementById(sentencePosition - 1);
+  var focusSentence = document.getElementById(sentencePosition);
+  if (!focusSentence) {
+    focusSentence = document.getElementById(sentencePosition - 1);
   }
-  selectedSentence.focus();
+  focusSentence.focus();
 }
 
 // Placeholder text for the preview window
