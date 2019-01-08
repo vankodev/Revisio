@@ -35,9 +35,15 @@ function addVersion(sentencePosition, versionText) {
   }
 }
 
-function selectBestVersion(sentencePosition, versionPosition) {
+function selectBestVersion(target) {
+  var sentencePosition = findSentencePosition(target);
+  var versionPosition = parseInt(target.id);
+  moveBestVersion(sentencePosition,versionPosition);
+  refreshSentenceVersions(target, sentencePosition);
+}
+
+function moveBestVersion(sentencePosition, versionPosition) {
   textArray[sentencePosition].move(versionPosition, - 1);
-  displayEditorContent();
 }
 
 ///////////////////////////////
@@ -77,7 +83,13 @@ function displayByParagraphs(sentence, ulElement, liElement) {
 function expandSentenceVersions(target, sentencePosition) {
   disableUlFocus();
   displaySentenceVersions(target, sentencePosition);
-  createVersionInput(target);
+
+  var secondVersion = target.children[1];
+  if (!secondVersion) {
+    createVersionInput(target);
+  } else {
+    secondVersion.focus();
+  }
 }
 
 function disableUlFocus() {
@@ -253,6 +265,13 @@ editor.addEventListener('keydown', function(event) {
           createSentenceInput(target);
         } else {
           expandSentenceVersions(target, sentencePosition);
+        }
+      }
+      if (target.matches('li')) {
+        if (event.getModifierState('Alt')) {
+          createVersionInput(target.parentNode);
+        } else {
+          selectBestVersion(target);
         }
       }
       if (target.matches('#sentenceInput')) {
