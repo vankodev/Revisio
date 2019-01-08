@@ -135,7 +135,7 @@ function refreshSentenceVersions(target, sentencePosition) {
 //////////////////////
 function previewText() {
   var previewTextArea = document.querySelector('textarea');
-  joinText();
+  var joinedText = joinText();
   previewTextArea.value = joinedText;
 }
 
@@ -144,9 +144,9 @@ function joinText() {
 
   textArray.forEach(function(sentence) {
     if (sentence != '<P>') {
-      joinBestSentences(sentence);
+      joinedText = joinBestSentences(joinedText, sentence);
     } else {
-      makeNewParagraph(joinedText);
+      joinedText = makeNewParagraph(joinedText);
     }
   });
 
@@ -154,7 +154,7 @@ function joinText() {
   return joinedText;
 }
 
-function joinBestSentences(sentence) {
+function joinBestSentences(joinedText, sentence) {
   bestSentence = sentence[sentence.length -1];
   joinedText = joinedText + bestSentence + ' ';
   return joinedText;
