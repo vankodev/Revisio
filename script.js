@@ -289,11 +289,14 @@ editor.addEventListener('keydown', function(event) {
       if (target.matches('ul')) {
         target.blur();
       }
+      if (target.matches('li')) {
+        colapseSentenceVersions(target);
+      }
       if (target.matches('#sentenceInput')) {
         removeSentenceInput(target);
       }
-      if (target.matches('li')) {
-        colapseSentenceVersions(target);
+      if (target.matches('#versionInput')) {
+        removeVersionInput(target);
       }
       break;
     case "Delete":
@@ -313,6 +316,12 @@ editor.addEventListener('keydown', function(event) {
 
   event.preventDefault();
 }, true);
+
+function removeVersionInput(target) {
+  var focusSentence = target.previousSibling;
+  target.parentNode.removeChild(target);
+  focusSentence.focus();
+}
 
 function createNewParagraph(sentencePosition) {
   var sentenceText = '<P>';
