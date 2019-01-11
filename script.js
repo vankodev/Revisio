@@ -317,11 +317,7 @@ editor.addEventListener('keydown', function(event) {
 }, true);
 
 function editSentence(target) {
-  var sentenceText = target.textContent;
-  var versionInput = createVersionInputElement();
-  versionInput.value = sentenceText;
-  target.parentNode.appendChild(versionInput);
-  target.parentNode.lastChild.focus();
+  target.contentEditable = 'true';
 }
 
 function removeVersionInput(target) {

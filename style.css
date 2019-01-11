@@ -133,3 +133,7 @@ hr {
   margin: 1em 0;
   padding: 0;
 }
+
+li[contenteditable="true"] {
+  background-color: rgb(246, 253, 255);
+}
