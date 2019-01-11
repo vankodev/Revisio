@@ -234,11 +234,7 @@ editor.addEventListener('keydown', function(event) {
   var firstSentencePosition = 0;
   var lastSentencePosition = textArray.length - 1;
 
-  if (event.defaultPrevented) {
-    return;
-  }
-
-  switch (event.key) {
+   switch (event.key) {
     case "Up":
     case "ArrowUp":
       if (target.matches('ul') &&  sentencePosition !== firstSentencePosition) {
@@ -275,7 +271,7 @@ editor.addEventListener('keydown', function(event) {
         if (event.getModifierState('Alt')) {
           createVersionInput(target.parentNode);
         } else {
-          selectBestVersion(target);
+          editSentence(target);
         }
       }
       if (target.matches('#sentenceInput')) {
@@ -310,12 +306,23 @@ editor.addEventListener('keydown', function(event) {
         createNewParagraph(sentencePosition);
       }
       break;
+    case "b":
+      if (target.matches('li') && event.getModifierState('Control')) {
+        selectBestVersion(target);
+      }
+      break;
     default:
       return;
   }
-
-  event.preventDefault();
 }, true);
+
+function editSentence(target) {
+  var sentenceText = target.textContent;
+  var versionInput = createVersionInputElement();
+  versionInput.value = sentenceText;
+  target.parentNode.appendChild(versionInput);
+  target.parentNode.lastChild.focus();
+}
 
 function removeVersionInput(target) {
   var focusSentence = target.previousSibling;
@@ -389,10 +396,9 @@ function createSentenceFromInput(target) {
 }
 
 function removeSentenceInput(target) {
-  previousSentencePosition = target.previousSibling.id;
+  var focusSentence = target.previousSibling;
   target.parentNode.removeChild(target);
-  previousSentence = document.getElementById(previousSentencePosition);
-  previousSentence.focus();
+  focusSentence.focus();
 }
 
 function moveSelectionUp(sentencePosition) {
