@@ -250,7 +250,7 @@ editor.addEventListener('dblclick', function(event) {
   var target = event.target;
 
   if (target.matches('.expanded')) {
-    target.contentEditable = 'true';
+    makeEditable(target);
   }
 }, true);
 
@@ -343,12 +343,22 @@ editor.addEventListener('keydown', function(event) {
   }
 }, true);
 
+function makeEditable(target) {
+  var c = target.parentNode.children;
+
+  for (var i = 0; i < c.length; i++) {
+    c[i].removeAttribute('contentEditable');
+  }
+
+  target.contentEditable = 'true';
+}
+
 function saveEdit(target) {
+  target.removeAttribute('contentEditable');
   var sentencePosition = findSentencePosition(target);
   var versionPosition = parseInt(target.id);
   var versionText = target.innerText;
   editVersion(sentencePosition, versionPosition, versionText);
-  target.contentEditable = false;
 }
 
 function removeVersionInput(target) {
