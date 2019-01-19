@@ -39,6 +39,10 @@ function addVersion(sentencePosition, versionText) {
   }
 }
 
+function editVersion(sentencePosition, versionPosition, versionText) {
+  textArray[sentencePosition][versionPosition] = versionText;
+}
+
 function selectBestVersion(target) {
   var sentencePosition = findSentencePosition(target);
   var versionPosition = parseInt(target.id);
@@ -123,6 +127,7 @@ function displayVersionElements(target, sentencePosition) {
 function createSentenceVersions(version, index) {
   var sentenceVersion = document.createElement('li');
   sentenceVersion.id = index;
+  sentenceVersion.className = 'expanded';
   sentenceVersion.textContent = version;
   sentenceVersion.tabIndex = -1;
   return sentenceVersion;
@@ -223,8 +228,19 @@ function copyToClipboard() {
 ////////////////////////////////////////
 editor.addEventListener('blur', function(event) {
   var target = event.target;
-  if (target.matches('#sentenceInput')) {
+  if (target.matches('#sentenceInput') || target.matches('#versionInput') ) {
     target.focus();
+  }
+  if (target.matches('li') && target.isContentEditable) {
+    target.focus();
+  }
+}, true);
+
+editor.addEventListener('dblclick', function(event) {
+  var target = event.target;
+
+  if (target.className === 'expanded') {
+    editSentence(target);
   }
 }, true);
 
@@ -270,8 +286,10 @@ editor.addEventListener('keydown', function(event) {
       if (target.matches('li')) {
         if (event.getModifierState('Alt')) {
           createVersionInput(target.parentNode);
+        } else if (target.isContentEditable) {
+          saveEdit(target);
         } else {
-          editSentence(target);
+          selectBestVersion(target);
         }
       }
       if (target.matches('#sentenceInput')) {
@@ -306,11 +324,6 @@ editor.addEventListener('keydown', function(event) {
         createNewParagraph(sentencePosition);
       }
       break;
-    case "b":
-      if (target.matches('li') && event.getModifierState('Control')) {
-        selectBestVersion(target);
-      }
-      break;
     default:
       return;
   }
@@ -318,6 +331,14 @@ editor.addEventListener('keydown', function(event) {
 
 function editSentence(target) {
   target.contentEditable = 'true';
+}
+
+function saveEdit(target) {
+  var sentencePosition = findSentencePosition(target);
+  var versionPosition = parseInt(target.id);
+  var versionText = target.innerText;
+  editVersion(sentencePosition, versionPosition, versionText);
+  target.contentEditable = false;
 }
 
 function removeVersionInput(target) {
