@@ -153,6 +153,16 @@ function refreshSentenceVersions(target, sentencePosition) {
   target.lastChild.focus();
 }
 
+function ignoreVersionEdit(target) {
+  var sentencePosition = findSentencePosition(target);
+  var versionPosition = parseInt(target.id);
+  target = target.parentNode;
+  target.innerHTML = '';
+  displayVersionElements(target, sentencePosition);
+  var focusSentence = document.getElementById(versionPosition);
+  focusSentence.focus();
+}
+
 //////////////////////
 function previewText() {
   var previewTextArea = document.querySelector('textarea');
@@ -239,8 +249,8 @@ editor.addEventListener('blur', function(event) {
 editor.addEventListener('dblclick', function(event) {
   var target = event.target;
 
-  if (target.className === 'expanded') {
-    editSentence(target);
+  if (target.matches('.expanded')) {
+    target.contentEditable = 'true';
   }
 }, true);
 
@@ -304,7 +314,11 @@ editor.addEventListener('keydown', function(event) {
         target.blur();
       }
       if (target.matches('li')) {
-        colapseSentenceVersions(target);
+        if (target.isContentEditable) {
+          ignoreVersionEdit(target);
+        } else {
+          colapseSentenceVersions(target);
+        }
       }
       if (target.matches('#sentenceInput')) {
         removeSentenceInput(target);
@@ -328,10 +342,6 @@ editor.addEventListener('keydown', function(event) {
       return;
   }
 }, true);
-
-function editSentence(target) {
-  target.contentEditable = 'true';
-}
 
 function saveEdit(target) {
   var sentencePosition = findSentencePosition(target);
