@@ -264,6 +264,7 @@ editor.addEventListener('keydown', function(event) {
     case "Up":
     case "ArrowUp":
       if (target.matches('ul') &&  sentencePosition !== firstSentencePosition) {
+        event.preventDefault();
         if (event.getModifierState('Alt')) {
           moveSentenceUp(sentencePosition);
         }
@@ -276,6 +277,7 @@ editor.addEventListener('keydown', function(event) {
     case "Down":
     case "ArrowDown":
       if (target.matches('ul') && sentencePosition !== lastSentencePosition) {
+        event.preventDefault();
         if (event.getModifierState('Alt')) {
           moveSentenceDown(sentencePosition);
         }
