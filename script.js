@@ -46,18 +46,18 @@ function editVersion(sentencePosition, versionPosition, versionText) {
 function selectBestVersion(target) {
   var sentencePosition = findSentencePosition(target);
   var versionPosition = parseInt(target.id);
-  moveBestVersion(sentencePosition,versionPosition);
+  moveBestVersion(sentencePosition, versionPosition);
   refreshSentenceVersions(target, sentencePosition);
 }
 
 function moveBestVersion(sentencePosition, versionPosition) {
-  textArray[sentencePosition].move(versionPosition, - 1);
+  textArray[sentencePosition].move(versionPosition, -1);
 }
 
 ///////////////////////////////
 function displayEditorContent() {
   editor.innerHTML = '';
-  textArray.forEach(function(sentence, index) {
+  textArray.forEach(function (sentence, index) {
     var ulElement = createUlElement(index);
     var liElement = createLiElement(sentence);
     displayByParagraphs(sentence, ulElement, liElement);
@@ -102,7 +102,7 @@ function expandSentenceVersions(target, sentencePosition) {
 
 function disableUlFocus() {
   var ulElements = document.querySelectorAll('ul');
-  ulElements.forEach(function(ulElement) {
+  ulElements.forEach(function (ulElement) {
     ulElement.removeAttribute('id');
     ulElement.removeAttribute('tabIndex');
     ulElement.className = 'fade';
@@ -118,7 +118,7 @@ function displaySentenceVersions(target, sentencePosition) {
 function displayVersionElements(target, sentencePosition) {
   var sentenceArray = textArray[sentencePosition];
 
-  sentenceArray.forEach(function(version, index) {
+  sentenceArray.forEach(function (version, index) {
     var sentenceVersion = createSentenceVersions(version, index);
     target.appendChild(sentenceVersion);
   });
@@ -173,7 +173,7 @@ function previewText() {
 function joinText() {
   var joinedText = '';
 
-  textArray.forEach(function(sentence) {
+  textArray.forEach(function (sentence) {
     if (sentence != '<P>') {
       joinedText = joinBestSentences(joinedText, sentence);
     } else {
@@ -186,7 +186,7 @@ function joinText() {
 }
 
 function joinBestSentences(joinedText, sentence) {
-  bestSentence = sentence[sentence.length -1];
+  bestSentence = sentence[sentence.length - 1];
   joinedText = joinedText + bestSentence + ' ';
   return joinedText;
 }
@@ -213,7 +213,7 @@ function tokenizeTextarea(textareaText) {
 }
 
 function tokenizeParagraphs(paragraphArray) {
-  paragraphArray.forEach(function(paragraph) {
+  paragraphArray.forEach(function (paragraph) {
     if (paragraph !== '') {
       var tokenizeSentencesRegex = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
       var sentenceArray = paragraph.split(tokenizeSentencesRegex);
@@ -224,7 +224,7 @@ function tokenizeParagraphs(paragraphArray) {
 }
 
 function tokenizeSentences(sentenceArray) {
-  sentenceArray.forEach(function(sentence) {
+  sentenceArray.forEach(function (sentence) {
     textArray.push([sentence]);
   });
 }
@@ -236,9 +236,9 @@ function copyToClipboard() {
 }
 
 ////////////////////////////////////////
-editor.addEventListener('blur', function(event) {
+editor.addEventListener('blur', function (event) {
   var target = event.target;
-  if (target.matches('#sentenceInput') || target.matches('#versionInput') ) {
+  if (target.matches('#sentenceInput') || target.matches('#versionInput')) {
     target.focus();
   }
   if (target.matches('li') && target.isContentEditable) {
@@ -246,7 +246,7 @@ editor.addEventListener('blur', function(event) {
   }
 }, true);
 
-editor.addEventListener('dblclick', function(event) {
+editor.addEventListener('dblclick', function (event) {
   var target = event.target;
 
   if (target.matches('.expanded')) {
@@ -254,16 +254,16 @@ editor.addEventListener('dblclick', function(event) {
   }
 }, true);
 
-editor.addEventListener('keydown', function(event) {
+editor.addEventListener('keydown', function (event) {
   var target = event.target;
   var sentencePosition = parseInt(target.id);
   var firstSentencePosition = 0;
   var lastSentencePosition = textArray.length - 1;
 
-   switch (event.key) {
+  switch (event.key) {
     case "Up":
     case "ArrowUp":
-      if (target.matches('ul') &&  sentencePosition !== firstSentencePosition) {
+      if (target.matches('ul') && sentencePosition !== firstSentencePosition) {
         event.preventDefault();
         if (event.getModifierState('Alt')) {
           moveSentenceUp(sentencePosition);
@@ -391,8 +391,8 @@ function colapseSentenceVersions(target) {
 function findSentencePosition(target) {
   var sentence = target.parentNode;
   var i = 0;
-  while((sentence = sentence.previousSibling) != null)
-  i++;
+  while ((sentence = sentence.previousSibling) != null)
+    i++;
   return i;
 }
 
@@ -448,7 +448,7 @@ function moveSelectionUp(sentencePosition) {
     }
     previousSentence.focus();
   }
-} 
+}
 
 function moveSelectionDown(sentencePosition) {
   nextSentence = document.getElementById(sentencePosition + 1);
