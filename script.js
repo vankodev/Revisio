@@ -287,6 +287,16 @@ editor.addEventListener('keydown', function (event) {
         moveSelectionDown(sentencePosition);
       }
       break;
+    case "PageUp":
+      if (target.matches('ul') && sentencePosition !== firstSentencePosition) {
+        moveToPreviousParagraph(target);
+      }
+      break;
+    case "PageDown":
+      if (target.matches('ul') && sentencePosition !== lastSentencePosition) {
+        moveToNextParagraph(target);
+      }
+      break;
     case "Enter":
       if (target.matches('ul')) {
         if (event.getModifierState('Alt')) {
@@ -344,6 +354,26 @@ editor.addEventListener('keydown', function (event) {
       return;
   }
 }, true);
+
+function moveToPreviousParagraph(target) {
+  event.preventDefault();
+
+  do {
+    target = target.previousSibling;
+  } while (target.nextSibling.firstChild.nodeName !== 'HR' && target !== target.parentNode.firstChild);
+
+  target.focus();
+}
+
+function moveToNextParagraph(target) {
+  event.preventDefault();
+
+  do {
+    target = target.nextSibling;
+  } while (target.previousSibling.firstChild.nodeName !== 'HR' && target !== target.parentNode.lastChild);
+
+  target.focus();
+}
 
 function makeEditable(target) {
   var c = target.parentNode.children;
@@ -443,7 +473,7 @@ function removeSentenceInput(target) {
 function moveSelectionUp(sentencePosition) {
   var previousSentence = document.getElementById(sentencePosition - 1);
   if (previousSentence) {
-    if (previousSentence.firstChild.tagName === 'HR') {
+    if (previousSentence.firstChild.nodeName === 'HR') {
       previousSentence = document.getElementById(sentencePosition - 2);
     }
     previousSentence.focus();
@@ -453,7 +483,7 @@ function moveSelectionUp(sentencePosition) {
 function moveSelectionDown(sentencePosition) {
   nextSentence = document.getElementById(sentencePosition + 1);
   if (nextSentence) {
-    if (nextSentence.firstChild.tagName === 'HR') {
+    if (nextSentence.firstChild.nodeName === 'HR') {
       nextSentence = document.getElementById(sentencePosition + 2);
     }
     nextSentence.focus();
