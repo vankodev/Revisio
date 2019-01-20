@@ -258,7 +258,7 @@ editor.addEventListener('keydown', function (event) {
   var target = event.target;
   var sentencePosition = parseInt(target.id);
   var firstSentencePosition = 0;
-  var lastSentencePosition = textArray.length - 1;
+  var lastSentencePosition = parseInt(target.parentNode.lastChild.id);
 
   switch (event.key) {
     case "Up":
@@ -268,10 +268,10 @@ editor.addEventListener('keydown', function (event) {
         if (event.getModifierState('Alt')) {
           moveSentenceUp(sentencePosition);
         }
-        moveSelectionUp(sentencePosition);
+        moveSelectionUp(target);
       }
-      if (target.matches('li')) {
-        moveSelectionUp(sentencePosition);
+      if (target.matches('li') && sentencePosition !== firstSentencePosition) {
+        moveSelectionUp(target);
       }
       break;
     case "Down":
@@ -281,10 +281,10 @@ editor.addEventListener('keydown', function (event) {
         if (event.getModifierState('Alt')) {
           moveSentenceDown(sentencePosition);
         }
-        moveSelectionDown(sentencePosition);
+        moveSelectionDown(target);
       }
-      if (target.matches('li')) {
-        moveSelectionDown(sentencePosition);
+      if (target.matches('li') && sentencePosition !== lastSentencePosition) {
+        moveSelectionDown(target);
       }
       break;
     case "PageUp":
@@ -470,24 +470,12 @@ function removeSentenceInput(target) {
   focusSentence.focus();
 }
 
-function moveSelectionUp(sentencePosition) {
-  var previousSentence = document.getElementById(sentencePosition - 1);
-  if (previousSentence) {
-    if (previousSentence.firstChild.nodeName === 'HR') {
-      previousSentence = document.getElementById(sentencePosition - 2);
-    }
-    previousSentence.focus();
-  }
+function moveSelectionUp(target) {
+    target.previousSibling.focus();
 }
 
-function moveSelectionDown(sentencePosition) {
-  nextSentence = document.getElementById(sentencePosition + 1);
-  if (nextSentence) {
-    if (nextSentence.firstChild.nodeName === 'HR') {
-      nextSentence = document.getElementById(sentencePosition + 2);
-    }
-    nextSentence.focus();
-  }
+function moveSelectionDown(target) {
+    target.nextSibling.focus();
 }
 
 function selectSentence(sentencePosition) {
