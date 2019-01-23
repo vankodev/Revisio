@@ -1,5 +1,6 @@
 var textArray = [];
 var editor = document.getElementById('editor');
+// var sortable = Sortable.create(editor);
 
 function addSentence(sentenceText) {
   textArray.push([sentenceText]);
@@ -18,13 +19,13 @@ function deleteSentence(sentencePosition) {
 }
 
 function moveSentenceUp(sentencePosition) {
-  previousSentencePosition = sentencePosition - 1;
+  var previousSentencePosition = sentencePosition - 1;
   textArray.move(sentencePosition, previousSentencePosition);
   displayEditorContent();
 }
 
 function moveSentenceDown(sentencePosition) {
-  nextSentencePosition = sentencePosition + 1;
+  var nextSentencePosition = sentencePosition + 1;
   textArray.move(sentencePosition, nextSentencePosition);
   displayEditorContent();
 }
@@ -186,7 +187,7 @@ function joinText() {
 }
 
 function joinBestSentences(joinedText, sentence) {
-  bestSentence = sentence[sentence.length - 1];
+  var bestSentence = sentence[sentence.length - 1];
   joinedText = joinedText + bestSentence + ' ';
   return joinedText;
 }
@@ -449,6 +450,8 @@ function createSentence(target) {
 }
 
 function selectSentencePosition(target) {
+  var sentencePosition;
+
   if (target.nextSibling) {
     sentencePosition = parseInt(target.nextSibling.id);
   } else {
@@ -459,8 +462,8 @@ function selectSentencePosition(target) {
 }
 
 function createSentenceFromInput(target) {
-  sentencePosition = parseInt(target.previousSibling.id) + 1;
-  sentenceText = target.value;
+  var sentencePosition = parseInt(target.previousSibling.id) + 1;
+  var sentenceText = target.value;
   insertSentence(sentencePosition, sentenceText);
 }
 
@@ -490,11 +493,11 @@ function selectSentence(sentencePosition) {
 document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
 
 // Placeholder text for the editor window
-for (var i = 0; i < 3; i++) {
-  sentence = 'This is literaly sentence number ' + (i + 1);
-  textArray.push([sentence]);
-  for (var j = 1; j < 3; j++) {
-    version = 'This is my version number ' + j;
-    addVersion(i, version);
-  }
-}
+// for (var i = 0; i < 3; i++) {
+//   var sentence = 'This is literaly sentence number ' + (i + 1);
+//   textArray.push([sentence]);
+//   for (var j = 1; j < 3; j++) {
+//     var version = 'This is my version number ' + j;
+//     addVersion(i, version);
+//   }
+// }
