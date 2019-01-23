@@ -269,10 +269,10 @@ editor.addEventListener('keydown', function (event) {
         if (event.getModifierState('Alt')) {
           moveSentenceUp(sentencePosition);
         }
-        moveSelectionUp(target);
+        moveSelectionUp(sentencePosition);
       }
       if (target.matches('li') && sentencePosition !== firstSentencePosition) {
-        moveSelectionUp(target);
+        moveSelectionUp(sentencePosition);
       }
       break;
     case "Down":
@@ -282,10 +282,10 @@ editor.addEventListener('keydown', function (event) {
         if (event.getModifierState('Alt')) {
           moveSentenceDown(sentencePosition);
         }
-        moveSelectionDown(target);
+        moveSelectionDown(sentencePosition);
       }
       if (target.matches('li') && sentencePosition !== lastSentencePosition) {
-        moveSelectionDown(target);
+        moveSelectionDown(sentencePosition);
       }
       break;
     case "PageUp":
@@ -473,12 +473,14 @@ function removeSentenceInput(target) {
   focusSentence.focus();
 }
 
-function moveSelectionUp(target) {
-    target.previousSibling.focus();
+function moveSelectionUp(sentencePosition) {
+  var previousSentence = document.getElementById(sentencePosition - 1);
+  previousSentence.focus();
 }
 
-function moveSelectionDown(target) {
-    target.nextSibling.focus();
+function moveSelectionDown(sentencePosition) {
+  var nextSentence = document.getElementById(sentencePosition + 1);
+  nextSentence.focus();
 }
 
 function selectSentence(sentencePosition) {
