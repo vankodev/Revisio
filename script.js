@@ -18,6 +18,11 @@ function deleteSentence(sentencePosition) {
   displayEditorContent();
 }
 
+function moveSentence(sentencePosition, newSentencePosition) {
+  textArray.move(sentencePosition, newSentencePosition);
+  displayEditorContent();
+}
+
 function moveSentenceUp(sentencePosition) {
   var previousSentencePosition = sentencePosition - 1;
   textArray.move(sentencePosition, previousSentencePosition);
@@ -258,6 +263,7 @@ editor.addEventListener('dblclick', function (event) {
 editor.addEventListener('keydown', function (event) {
   var target = event.target;
   var sentencePosition = parseInt(target.id);
+  var newSentencePosition;
   var firstSentencePosition = 0;
   var lastSentencePosition = parseInt(target.parentNode.lastChild.id);
 
@@ -290,12 +296,26 @@ editor.addEventListener('keydown', function (event) {
       break;
     case "PageUp":
       if (target.matches('ul') && sentencePosition !== firstSentencePosition) {
-        moveToPreviousParagraph(target);
+        event.preventDefault();
+        newSentencePosition = getPreviousParagraph(target);
+
+        if (event.getModifierState('Alt')) {
+          moveSentence(sentencePosition, newSentencePosition);
+        }
+
+        selectNewPosition(newSentencePosition);
       }
       break;
     case "PageDown":
       if (target.matches('ul') && sentencePosition !== lastSentencePosition) {
-        moveToNextParagraph(target);
+        event.preventDefault();
+        newSentencePosition = getNextParagraph(target);
+
+        if (event.getModifierState('Alt')) {
+          moveSentence(sentencePosition, newSentencePosition);
+        }
+
+        selectNewPosition(newSentencePosition);
       }
       break;
     case "Enter":
@@ -356,24 +376,25 @@ editor.addEventListener('keydown', function (event) {
   }
 }, true);
 
-function moveToPreviousParagraph(target) {
-  event.preventDefault();
-
+function getPreviousParagraph(target) {
   do {
     target = target.previousSibling;
-  } while (target.nextSibling.firstChild.nodeName !== 'HR' && target !== target.parentNode.firstChild);
+  } while (target.firstChild.nodeName !== 'HR' && target !== target.parentNode.firstChild);
 
-  target.focus();
+  return parseInt(target.id);
 }
 
-function moveToNextParagraph(target) {
-  event.preventDefault();
-
+function getNextParagraph(target) {
   do {
     target = target.nextSibling;
-  } while (target.previousSibling.firstChild.nodeName !== 'HR' && target !== target.parentNode.lastChild);
+  } while (target.firstChild.nodeName !== 'HR' && target !== target.parentNode.lastChild);
 
-  target.focus();
+  return parseInt(target.id);
+}
+
+function selectNewPosition(newSentencePosition) {
+  var newPosition = document.getElementById(newSentencePosition);
+  newPosition.focus();
 }
 
 function makeEditable(target) {
