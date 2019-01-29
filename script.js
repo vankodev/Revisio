@@ -23,18 +23,6 @@ function moveSentence(sentencePosition, newSentencePosition) {
   displayEditorContent();
 }
 
-function moveSentenceUp(sentencePosition) {
-  var previousSentencePosition = sentencePosition - 1;
-  textArray.move(sentencePosition, previousSentencePosition);
-  displayEditorContent();
-}
-
-function moveSentenceDown(sentencePosition) {
-  var nextSentencePosition = sentencePosition + 1;
-  textArray.move(sentencePosition, nextSentencePosition);
-  displayEditorContent();
-}
-
 function addVersion(sentencePosition, versionText) {
   var sentenceArray = textArray[sentencePosition];
   if (sentenceArray.length > 1) {
@@ -270,28 +258,42 @@ editor.addEventListener('keydown', function (event) {
   switch (event.key) {
     case "Up":
     case "ArrowUp":
-      if (target.matches('ul') && sentencePosition !== firstSentencePosition) {
-        event.preventDefault();
-        if (event.getModifierState('Alt')) {
-          moveSentenceUp(sentencePosition);
+      if (sentencePosition !== firstSentencePosition) {
+        var previousSentencePosition = sentencePosition - 1;
+        
+        if (target.matches('ul')) {
+          event.preventDefault();
+
+          if (event.getModifierState('Alt')) {
+            moveSentence(sentencePosition, previousSentencePosition);
+          }
+  
+          selectNewPosition(previousSentencePosition);
         }
-        moveSelectionUp(sentencePosition);
-      }
-      if (target.matches('li') && sentencePosition !== firstSentencePosition) {
-        moveSelectionUp(sentencePosition);
+        
+        if (target.matches('li')) {
+          selectNewPosition(previousSentencePosition);
+        }
       }
       break;
     case "Down":
     case "ArrowDown":
-      if (target.matches('ul') && sentencePosition !== lastSentencePosition) {
-        event.preventDefault();
-        if (event.getModifierState('Alt')) {
-          moveSentenceDown(sentencePosition);
+      if (sentencePosition !== lastSentencePosition) {
+        var nextSentencePosition = sentencePosition + 1;
+
+        if (target.matches('ul')) {
+          event.preventDefault();
+
+          if (event.getModifierState('Alt')) {
+            moveSentence(sentencePosition, nextSentencePosition);
+          }
+          
+          selectNewPosition(nextSentencePosition);
         }
-        moveSelectionDown(sentencePosition);
-      }
-      if (target.matches('li') && sentencePosition !== lastSentencePosition) {
-        moveSelectionDown(sentencePosition);
+
+        if (target.matches('li')) {
+          selectNewPosition(nextSentencePosition);
+        }
       }
       break;
     case "PageUp":
@@ -492,16 +494,6 @@ function removeSentenceInput(target) {
   var focusSentence = target.previousSibling;
   target.parentNode.removeChild(target);
   focusSentence.focus();
-}
-
-function moveSelectionUp(sentencePosition) {
-  var previousSentence = document.getElementById(sentencePosition - 1);
-  previousSentence.focus();
-}
-
-function moveSelectionDown(sentencePosition) {
-  var nextSentence = document.getElementById(sentencePosition + 1);
-  nextSentence.focus();
 }
 
 function selectSentence(sentencePosition) {
