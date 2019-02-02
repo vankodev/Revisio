@@ -56,12 +56,14 @@ function displayEditorContent() {
     var liElement = createLiElement(sentence);
     displayByParagraphs(sentence, ulElement, liElement);
   });
+  activateDragAndDrop();
 }
 
 function createUlElement(index) {
   var ulElement = document.createElement('ul');
   ulElement.id = index;
   ulElement.tabIndex = -1;
+  ulElement.setAttribute('draggable', 'true');
   editor.appendChild(ulElement);
   return ulElement;
 }
@@ -70,7 +72,6 @@ function createLiElement(sentence) {
   var liElement = document.createElement('li');
   var lastSentenceVersion = sentence[sentence.length - 1];
   liElement.textContent = lastSentenceVersion;
-  liElement.setAttribute('draggable', 'true');
   return liElement;
 }
 
@@ -507,60 +508,71 @@ function selectSentence(sentencePosition) {
 
 // Drag and Drop
 
-editor.addEventListener('dragstart', function (event) {
+function activateDragAndDrop() {
+  var items = document.querySelectorAll("ul");
+
+  console.log(items);
+
+  for (const item of items) {
+    item.addEventListener('dragstart', dragStart);
+    item.addEventListener('drag', drag);
+    item.addEventListener('dragend', dragEnd);
+    item.addEventListener('dragenter', dragEnter);
+    item.addEventListener('dragover', dragOver);
+    item.addEventListener('dragleave', dragLeave);
+    item.addEventListener('drop', drop, false);
+  }
+}
+
+function dragStart(event) {
   // Occurs on the very start of a drag-and-drop action
-  if (event.target.matches('li')) {
-    var draggedSentencePosition = String(event.target.parentNode.id);
-    event.dataTransfer.setData('text/plain', draggedSentencePosition);
-  }
-});
+  console.log('dragstart');
 
-editor.addEventListener('drag', function (event) {
+  var draggedSentencePosition = String(event.target.id);
+  console.log(draggedSentencePosition);
+  event.dataTransfer.setData('text/plain', draggedSentencePosition);
+}
+
+function drag(event) {
   // Fires as a draggable element is being dragged around the screen
-  if (event.target.matches('li')) {
-    console.log("drag");
+  //console.log("drag");
+}
 
-  }
-});
-
-editor.addEventListener('dragend', function (event) {
+function dragEnd(event) {
   // Occurs at the very end of the drag-and-drop action
-  if (event.target.matches('li')) {
-    console.log("dragend");
-  }
-});
+  //console.log("dragend");
+}
 
-editor.addEventListener('dragenter', function (event) {
+function dragEnter(event) {
   // Fires when an item being dragged passes on the element with this event handler -- in other words, when the dragged item enters into a drop zone.
-  if (event.target.matches('li')) {
-    console.log("dragenter");
-  }
-});
+  //console.log("dragenter");
+}
 
-editor.addEventListener('dragover', function (event) {
+function dragOver(event) {
   // Continuously fires when an object that is being dragged is over some element with this handler
-  if (event.target.matches('li')) {
-    event.preventDefault();
-    console.log("dragover");
-  }
-});
+  event.preventDefault();
+  //console.log("dragover");
+}
 
-editor.addEventListener('dragleave', function (event) {
+function dragLeave(event) {
   // Fires when an item being dragged leaves the element with this event handler -- when the dragged item leaves a potential drop zone
-  if (event.target.matches('li')) {
-    console.log("dragleave");
-  }
-});
+  //console.log("dragleave");
+}
 
-editor.addEventListener('drop', function (event) {
+function drop(event) {
   // Fires when an object being dragged is released on an element with this handler
-  if (event.target.matches('li')) {
-    event.preventDefault();
-    var draggedSentencePosition = parseInt(event.dataTransfer.getData('text/plain'));
-    var newSentencePosition = parseInt(event.target.parentNode.id);
-    moveSentence(draggedSentencePosition, newSentencePosition);
+  var target = event.target;
+  
+  if (target.matches('li')) {
+    target = target.parentNode;
   }
-});
+
+  event.preventDefault();
+  var draggedSentencePosition = parseInt(event.dataTransfer.getData('text/plain'));
+  var newSentencePosition = parseInt(target.id);
+  console.log(draggedSentencePosition, newSentencePosition);
+  moveSentence(draggedSentencePosition, newSentencePosition);
+}
 
 // Placeholder text for the preview window
 document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
