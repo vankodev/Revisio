@@ -70,6 +70,7 @@ function createLiElement(sentence) {
   var liElement = document.createElement('li');
   var lastSentenceVersion = sentence[sentence.length - 1];
   liElement.textContent = lastSentenceVersion;
+  liElement.setAttribute('draggable', 'true');
   return liElement;
 }
 
@@ -503,6 +504,63 @@ function selectSentence(sentencePosition) {
   }
   focusSentence.focus();
 }
+
+// Drag and Drop
+
+editor.addEventListener('dragstart', function (event) {
+  // Occurs on the very start of a drag-and-drop action
+  if (event.target.matches('li')) {
+    var draggedSentencePosition = String(event.target.parentNode.id);
+    event.dataTransfer.setData('text/plain', draggedSentencePosition);
+  }
+});
+
+editor.addEventListener('drag', function (event) {
+  // Fires as a draggable element is being dragged around the screen
+  if (event.target.matches('li')) {
+    console.log("drag");
+
+  }
+});
+
+editor.addEventListener('dragend', function (event) {
+  // Occurs at the very end of the drag-and-drop action
+  if (event.target.matches('li')) {
+    console.log("dragend");
+  }
+});
+
+editor.addEventListener('dragenter', function (event) {
+  // Fires when an item being dragged passes on the element with this event handler -- in other words, when the dragged item enters into a drop zone.
+  if (event.target.matches('li')) {
+    console.log("dragenter");
+  }
+});
+
+editor.addEventListener('dragover', function (event) {
+  // Continuously fires when an object that is being dragged is over some element with this handler
+  if (event.target.matches('li')) {
+    event.preventDefault();
+    console.log("dragover");
+  }
+});
+
+editor.addEventListener('dragleave', function (event) {
+  // Fires when an item being dragged leaves the element with this event handler -- when the dragged item leaves a potential drop zone
+  if (event.target.matches('li')) {
+    console.log("dragleave");
+  }
+});
+
+editor.addEventListener('drop', function (event) {
+  // Fires when an object being dragged is released on an element with this handler
+  if (event.target.matches('li')) {
+    event.preventDefault();
+    var draggedSentencePosition = parseInt(event.dataTransfer.getData('text/plain'));
+    var newSentencePosition = parseInt(event.target.parentNode.id);
+    moveSentence(draggedSentencePosition, newSentencePosition);
+  }
+});
 
 // Placeholder text for the preview window
 document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
