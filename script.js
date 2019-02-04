@@ -1,6 +1,7 @@
 var textArray = [];
 var editor = document.getElementById('editor');
-// var sortable = Sortable.create(editor);
+
+// Array Operations
 
 function addSentence(sentenceText) {
   textArray.push([sentenceText]);
@@ -48,7 +49,9 @@ function moveBestVersion(sentencePosition, versionPosition) {
   textArray[sentencePosition].move(versionPosition, -1);
 }
 
-///////////////////////////////
+
+// Display Editor Content
+
 function displayEditorContent() {
   editor.innerHTML = '';
   textArray.forEach(function (sentence, index) {
@@ -64,7 +67,6 @@ function createUlElement(index) {
   ulElement.id = index;
   ulElement.tabIndex = -1;
   ulElement.setAttribute('draggable', 'true');
-  ulElement.className = 'dropzone';
   editor.appendChild(ulElement);
   return ulElement;
 }
@@ -160,7 +162,8 @@ function ignoreVersionEdit(target) {
   focusSentence.focus();
 }
 
-//////////////////////
+// Preview Text
+
 function previewText() {
   var previewTextArea = document.querySelector('textarea');
   var joinedText = joinText();
@@ -194,7 +197,8 @@ function makeNewParagraph(joinedText) {
   return joinedText;
 }
 
-/////////////////////////////
+// Tokenize Text
+
 function tokenizePreviewText() {
   textArray = [];
   var textareaText = document.querySelector('textarea').value;
@@ -232,7 +236,8 @@ function copyToClipboard() {
   document.execCommand('copy');
 }
 
-////////////////////////////////////////
+// Event Listeners
+
 editor.addEventListener('blur', function (event) {
   var target = event.target;
   if (target.matches('#sentenceInput') || target.matches('#versionInput')) {
@@ -263,17 +268,17 @@ editor.addEventListener('keydown', function (event) {
     case "ArrowUp":
       if (sentencePosition !== firstSentencePosition) {
         var previousSentencePosition = sentencePosition - 1;
-        
+
         if (target.matches('ul')) {
           event.preventDefault();
 
           if (event.getModifierState('Alt')) {
             moveSentence(sentencePosition, previousSentencePosition);
           }
-  
+
           selectNewPosition(previousSentencePosition);
         }
-        
+
         if (target.matches('li')) {
           selectNewPosition(previousSentencePosition);
         }
@@ -290,7 +295,7 @@ editor.addEventListener('keydown', function (event) {
           if (event.getModifierState('Alt')) {
             moveSentence(sentencePosition, nextSentencePosition);
           }
-          
+
           selectNewPosition(nextSentencePosition);
         }
 
@@ -380,6 +385,8 @@ editor.addEventListener('keydown', function (event) {
       return;
   }
 }, true);
+
+// Handlers
 
 function getPreviousParagraph(target) {
   do {
@@ -524,29 +531,38 @@ function activateDragAndDrop() {
 }
 
 function dragStart(event) {
-  var draggedSentencePosition = String(event.target.id);
+  var target = event.target;
+
+  if (target.matches('li')) {
+    target = target.parentNode;
+  }
+
+  target.classList.add('nodropzone');
+  if (target.nextSibling) {
+    target.nextSibling.classList.add('nodropzone');
+  }
+  
+  var draggedSentencePosition = String(target.id);
   event.dataTransfer.setData('text/plain', draggedSentencePosition);
 }
 
-function drag(event) {
+function drag() {
   // Fires as a draggable element is being dragged around the screen
-  // console.log("drag");
 }
 
-function dragEnd(event) {
+function dragEnd() {
   // Occurs at the very end of the drag-and-drop action
-  // console.log("dragend");
 }
 
 function dragEnter(event) {
   var target = event.target;
-  
-  // if (target.matches('li')) {
-  //   target = target.parentNode;
-  // }
 
-  if ( target.className === 'dropzone' ) {
-    target.classList.add('dragging');
+  if (target.matches('li')) {
+    target = target.parentNode;
+  }
+
+  if (!target.matches('.nodropzone')) {
+    target.classList.add('dropzone');
   }
 }
 
@@ -556,19 +572,12 @@ function dragOver(event) {
 
 function dragLeave(event) {
   var target = event.target;
-  
-  if (target.matches('li')) {
-    target = target.parentNode;
-  }
-  
-  target.classList.remove('dragging');
-  // if ( target.className === 'dropzone' ) {
-  // }
+  target.classList.remove('dropzone');
 }
 
 function drop(event) {
   var target = event.target;
-  
+
   if (target.matches('li')) {
     target = target.parentNode;
   }
@@ -576,18 +585,10 @@ function drop(event) {
   event.preventDefault();
   var draggedSentencePosition = parseInt(event.dataTransfer.getData('text/plain'));
   var newSentencePosition = parseInt(target.id);
+
+  if (draggedSentencePosition < newSentencePosition) {
+    newSentencePosition--;
+  }
+
   moveSentence(draggedSentencePosition, newSentencePosition);
 }
-
-// Placeholder text for the preview window
-document.querySelector('textarea').value = 'There are people who think that the type should be expressive—they have a different point of view from mine. I don’t think type should be expressive at all. I can write the word ‘dog’ with any typeface, and it doesn’t have to look like a dog. But there are people who, when they write ‘dog’ think it should bark, you know? So there are all kinds of people, and therefore, there will always people who will find work designing funky type, and it could be that all of a sudden a funky typeface takes the world by storm, but I doubt it. I’m a strong believer in intellect and intelligence, and I’m a strong believer in intellectual elegance, so that, I think, will prevent vulgarity from really taking over the world more than it has already.\nSome defenses need to be put up, and I think, actually, that the more culture spreads out and the more refined education becomes, the more refined the sensibility about type becomes, too. The more uneducated the person is who you talk to, the more he likes horrible typefaces.\nLook at comics like The Hulk, things like that. It’s not even type. Look at anything which is elegant and refined; you find elegant and refined typefaces. The more culture is refined in the future—this might take a long time, but eventually education might prevail over ignorance—the more you’ll find good typography. I’m convinced of that.';
-
-// Placeholder text for the editor window
-// for (var i = 0; i < 3; i++) {
-//   var sentence = 'This is literaly sentence number ' + (i + 1);
-//   textArray.push([sentence]);
-//   for (var j = 1; j < 3; j++) {
-//     var version = 'This is my version number ' + j;
-//     addVersion(i, version);
-//   }
-// }
