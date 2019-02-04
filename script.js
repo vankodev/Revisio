@@ -64,6 +64,7 @@ function createUlElement(index) {
   ulElement.id = index;
   ulElement.tabIndex = -1;
   ulElement.setAttribute('draggable', 'true');
+  ulElement.className = 'dropzone';
   editor.appendChild(ulElement);
   return ulElement;
 }
@@ -511,56 +512,61 @@ function selectSentence(sentencePosition) {
 function activateDragAndDrop() {
   var items = document.querySelectorAll("ul");
 
-  console.log(items);
-
   for (const item of items) {
     item.addEventListener('dragstart', dragStart);
     item.addEventListener('drag', drag);
     item.addEventListener('dragend', dragEnd);
-    item.addEventListener('dragenter', dragEnter);
+    item.addEventListener('dragenter', dragEnter, true);
     item.addEventListener('dragover', dragOver);
-    item.addEventListener('dragleave', dragLeave);
-    item.addEventListener('drop', drop, false);
+    item.addEventListener('dragleave', dragLeave, true);
+    item.addEventListener('drop', drop);
   }
 }
 
 function dragStart(event) {
-  // Occurs on the very start of a drag-and-drop action
-  console.log('dragstart');
-
   var draggedSentencePosition = String(event.target.id);
-  console.log(draggedSentencePosition);
   event.dataTransfer.setData('text/plain', draggedSentencePosition);
 }
 
 function drag(event) {
   // Fires as a draggable element is being dragged around the screen
-  //console.log("drag");
+  // console.log("drag");
 }
 
 function dragEnd(event) {
   // Occurs at the very end of the drag-and-drop action
-  //console.log("dragend");
+  // console.log("dragend");
 }
 
 function dragEnter(event) {
-  // Fires when an item being dragged passes on the element with this event handler -- in other words, when the dragged item enters into a drop zone.
-  //console.log("dragenter");
+  var target = event.target;
+  
+  // if (target.matches('li')) {
+  //   target = target.parentNode;
+  // }
+
+  if ( target.className === 'dropzone' ) {
+    target.classList.add('dragging');
+  }
 }
 
 function dragOver(event) {
-  // Continuously fires when an object that is being dragged is over some element with this handler
   event.preventDefault();
-  //console.log("dragover");
 }
 
 function dragLeave(event) {
-  // Fires when an item being dragged leaves the element with this event handler -- when the dragged item leaves a potential drop zone
-  //console.log("dragleave");
+  var target = event.target;
+  
+  if (target.matches('li')) {
+    target = target.parentNode;
+  }
+  
+  target.classList.remove('dragging');
+  // if ( target.className === 'dropzone' ) {
+  // }
 }
 
 function drop(event) {
-  // Fires when an object being dragged is released on an element with this handler
   var target = event.target;
   
   if (target.matches('li')) {
@@ -570,7 +576,6 @@ function drop(event) {
   event.preventDefault();
   var draggedSentencePosition = parseInt(event.dataTransfer.getData('text/plain'));
   var newSentencePosition = parseInt(target.id);
-  console.log(draggedSentencePosition, newSentencePosition);
   moveSentence(draggedSentencePosition, newSentencePosition);
 }
 

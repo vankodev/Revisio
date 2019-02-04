@@ -137,3 +137,8 @@ hr {
 li[contenteditable="true"] {
   background-color: rgb(246, 253, 255);
 }
+
+.dragging {
+  border-top: 30px solid rgb(150, 150, 150);
+}
+
