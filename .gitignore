@@ -1,3 +1,6 @@
+.archive/
+.vscode
 node_modules/
-.backup/
-.vscode/
+.eslintrc.js
+todo-list.md
+
