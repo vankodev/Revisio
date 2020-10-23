@@ -9,7 +9,7 @@
 <body>
   <div id="menu">
     <div id="menuButtons">
-      <button onclick='displayEditorContent()'>Refresh</button>
+      <button id="helpButton">Help</button>
       <button onclick='previewText()'>Preview</button>
       <button onclick='tokenizePreviewText()'>Tokenize</button>
       <button onclick='copyToClipboard()'>Copy</button>
@@ -23,6 +23,50 @@
     <textarea placeholder="Put your notes here and tokenize them into sentences."></textarea>
   </div>
 
+  <!-- The Help Modal -->
+  <div id="helpModal" class="modal">
+
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>How it works</h2>
+      <ul>
+        <li>The app splits the text into sentences that you can easily sort to achieve a nice flow for reading. </li>
+        <li>You can write new versions of every sentence and compare it with the original sentence. </li>
+        <li>The app joins the sentences in paragraphs for your convenience to read the revised text.</li>
+      </ul>
+      <h2>Instructions</h2>
+      <ol>
+        <li>
+          Copy the raw text into the right panel and click the <strong>Tokenize</strong> button. The text is then
+          split into sentences.
+        </li>
+        <li>
+          Use the mouse or <strong>Up</strong> and <strong>Down Arrow</strong> keys to select a sentence in the left
+          panel.
+        </li>
+        <li>Use drag and drop or <strong>Alt+Up</strong> or <strong>Alt+Down</strong> to sort the
+          sentences.</li>
+        <li>To insert a new sentence below the current one hit <strong>Alt+Enter</strong>. </li>
+        <li>To write a new version of a sentence press <strong>Enter</strong> to go into <em>sentence editing
+            mode</em>.
+          If there is only one version of the sentence you will be prompted to write a new version. If there are
+          already
+          two versions of the sentence you can select the better one with the <strong>Enter</strong> key. To edit a
+          sentence version without writing a new version double click with the mouse on it. Press the
+          <strong>Esc</strong> key to exit <em>sentence editing mode</em> and show only the better version of the
+          sentence.
+        </li>
+        <li>To join the sentences back into paragraphs press the <strong>Preview</strong> button. </li>
+        <li>
+          If you are happy with the revision press the <strong>Copy</strong> button to copy the revised text and put
+          it into your working document.
+        </li>
+      </ol>
+    </div>
+
+  </div>
+
+  <script src="/help-modal.js"></script>
   <script src="array-prototype-move.js"></script>
   <script src="/script.js"></script>
 </body>
