@@ -18,11 +18,20 @@ body {
 #menu {
   width: 96%;
   float: right;
-  margin: 10px 2%;
+  margin: 6px 2% 12px;
 }
 
 #menu div {
   display: inline;
+}
+
+#logo {
+  font-size: 36px;
+  line-height: 0.9em;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: rgb(0 0 0 / 20%);
+  margin-left: 15px;
 }
 
 #editor {
@@ -122,8 +131,9 @@ li:focus {
   float: right;
 }
 
-#menuButtons button {
-  margin-left: 10px;
+#menuButtons button{
+  padding: 3px 12px;
+  margin-left: 12px;
 }
 
 hr {
