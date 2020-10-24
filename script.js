@@ -1,5 +1,6 @@
 var textArray = [];
 var editor = document.getElementById('editor');
+loadData();
 
 // Array Operations
 
@@ -11,16 +12,19 @@ function insertSentence(sentencePosition, sentenceText) {
   if (sentenceText !== '') {
     textArray.splice(sentencePosition, 0, [sentenceText]);
   }
+  saveData();
   displayEditorContent();
 }
 
 function deleteSentence(sentencePosition) {
   textArray.splice(sentencePosition, 1);
+  saveData();
   displayEditorContent();
 }
 
 function moveSentence(sentencePosition, newSentencePosition) {
   textArray.move(sentencePosition, newSentencePosition);
+  saveData();
   displayEditorContent();
 }
 
@@ -49,6 +53,30 @@ function moveBestVersion(sentencePosition, versionPosition) {
   textArray[sentencePosition].move(versionPosition, -1);
 }
 
+// Local Storage
+
+function saveData() {
+  localStorage.setItem('revisio', JSON.stringify(textArray));
+}
+
+function loadData() {
+  if (localStorage.getItem('revisio') != null) {
+    textArray = JSON.parse(localStorage.getItem('revisio'));
+    displayEditorContent();
+    previewText();
+  }
+}
+
+function clearData() {
+  if (confirm("Confirm to DELETE the revision!")) {
+    localStorage.removeItem('revisio');
+    textArray = [];
+    displayEditorContent();
+    previewText();
+  } else {
+    return;
+  }
+}
 
 // Display Editor Content
 
@@ -203,6 +231,7 @@ function tokenizePreviewText() {
   textArray = [];
   var textareaText = document.querySelector('textarea').value;
   tokenizeTextarea(textareaText);
+  saveData();
   displayEditorContent();
 }
 
@@ -447,6 +476,7 @@ function createNewParagraph(sentencePosition) {
 
 function colapseSentenceVersions(target) {
   var sentencePosition = findSentencePosition(target);
+  saveData();
   displayEditorContent();
   var focusSentence = document.getElementById(sentencePosition);
   focusSentence.focus();
