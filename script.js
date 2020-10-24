@@ -127,7 +127,7 @@ function expandSentenceVersions(target, sentencePosition) {
 }
 
 function disableUlFocus() {
-  var ulElements = document.querySelectorAll('ul');
+  var ulElements = editor.querySelectorAll('ul');
   ulElements.forEach(function (ulElement) {
     ulElement.removeAttribute('id');
     ulElement.removeAttribute('tabIndex');
