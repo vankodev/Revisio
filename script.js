@@ -13,19 +13,16 @@ function insertSentence(sentencePosition, sentenceText) {
     textArray.splice(sentencePosition, 0, [sentenceText]);
   }
   saveData();
-  displayEditorContent();
 }
 
 function deleteSentence(sentencePosition) {
   textArray.splice(sentencePosition, 1);
   saveData();
-  displayEditorContent();
 }
 
 function moveSentence(sentencePosition, newSentencePosition) {
   textArray.move(sentencePosition, newSentencePosition);
   saveData();
-  displayEditorContent();
 }
 
 function addVersion(sentencePosition, versionText) {
@@ -57,6 +54,8 @@ function moveBestVersion(sentencePosition, versionPosition) {
 
 function saveData() {
   localStorage.setItem('revisio', JSON.stringify(textArray));
+  displayEditorContent();
+  previewText();
 }
 
 function loadData() {
@@ -232,7 +231,6 @@ function tokenizePreviewText() {
   var textareaText = document.querySelector('textarea').value;
   tokenizeTextarea(textareaText);
   saveData();
-  displayEditorContent();
 }
 
 function tokenizeTextarea(textareaText) {
@@ -477,7 +475,6 @@ function createNewParagraph(sentencePosition) {
 function colapseSentenceVersions(target) {
   var sentencePosition = findSentencePosition(target);
   saveData();
-  displayEditorContent();
   var focusSentence = document.getElementById(sentencePosition);
   focusSentence.focus();
 }
