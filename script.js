@@ -544,7 +544,7 @@ function selectSentence(sentencePosition) {
 // Drag and Drop
 
 function activateDragAndDrop() {
-  var items = document.querySelectorAll("ul");
+  var items = editor.querySelectorAll("ul");
 
   for (const item of items) {
     item.addEventListener('dragstart', dragStart);
