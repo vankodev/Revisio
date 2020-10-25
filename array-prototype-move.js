@@ -1,4 +1,3 @@
-// Taken from Reid's answer at http://stackoverflow.com/questions/5306680/move-an-array-element-from-one-array-position-to-another
 (function() {
   if(!Array.prototype.move) {
     Array.prototype.move = function (old_index, new_index) {
@@ -18,8 +17,7 @@
             }
         }
         this.splice(new_index, 0, this.splice(old_index, 1)[0]);
-        return this; // for testing purposes
+        return this;
     };
   }
 })(this);
-
