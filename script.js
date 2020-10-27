@@ -293,12 +293,12 @@ editor.addEventListener('keydown', function (event) {
   switch (event.key) {
     case "Up":
     case "ArrowUp":
+      event.preventDefault();
+
       if (sentencePosition !== firstSentencePosition) {
         var previousSentencePosition = sentencePosition - 1;
 
         if (target.matches('ul')) {
-          event.preventDefault();
-
           if (event.getModifierState('Alt')) {
             moveSentence(sentencePosition, previousSentencePosition);
           }
@@ -313,12 +313,12 @@ editor.addEventListener('keydown', function (event) {
       break;
     case "Down":
     case "ArrowDown":
+      event.preventDefault();
+
       if (sentencePosition !== lastSentencePosition) {
         var nextSentencePosition = sentencePosition + 1;
 
         if (target.matches('ul')) {
-          event.preventDefault();
-
           if (event.getModifierState('Alt')) {
             moveSentence(sentencePosition, nextSentencePosition);
           }
