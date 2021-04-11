@@ -1,6 +1,6 @@
 function showModal(m) {
-  var modal = document.getElementById(m + "Modal");
-  var span = document.getElementById(m + "Close");
+  var modal = document.getElementById("modal-" + m);
+  var span = document.getElementById("close-" + m);
 
   modal.style.display = "block";
 
