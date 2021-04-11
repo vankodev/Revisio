@@ -1,44 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="images/favicon-16x16.png" sizes="16x16">
-  <link rel="icon" type="image/png" href="images/favicon-32x32.png" sizes="32x32">
-  <link rel="icon" type="image/png" href="images/favicon-192x192.png" sizes="192x192">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="Ivan Ivanov" />
+  <meta name="description" content="Revisio - Text editor for text revisions" />
   <title>Revisio - Text Editor</title>
+  <link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16" />
+  <link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="img/favicon-192x192.png" sizes="192x192" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <div id="menu">
-    <div id="logo">REVISIO</div>
-    <div id="menuButtons">
-      <button onclick="tokenizePreviewText()">Tokenize</button>
-      <button onclick="clearData()">Clear</button>
-      <button onclick="copyToClipboard()">Copy</button>
-      <button onclick="showModal('about')">About</button>
-      <button onclick="showModal('help')">Help</button>
+  <header>
+    <div class="container">
+      <div class="menu">
+        <img class="logo" src="img/logo.svg" />
+        <ul class="menu-list">
+          <li><a class="btn" href="javascript:tokenizePreviewText();">Tokenize</a></li>
+          <li><a class="btn" href="javascript:clearData();">Clear</a></li>
+          <li><a class="btn" href="javascript:copyToClipboard();">Copy</a></li>
+          <li><a class="btn" href="javascript:showModal('about');">About</a></li>
+          <li><a class="btn" href="javascript:showModal('help');">Help</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div id="editor">
-  </div>
+  <section>
+    <div class="container">
+      <div class="editor">
+        <div class="editor-panel">
+          <ul class="sentence-list">
+            <!-- <li>
+                <p class="sentence" tabindex=0>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  Saepe, dolore!
+                </p>
+              </li>
+              <li>
+                <p class="sentence" tabindex=0>
+                  Velit corrupti facilis enim iure eos repellat tempora, placeat
+                  doloribus.
+                </p>
+              </li>
+              <li>
+                <p class="sentence" tabindex=0>
+                  Dolor asperiores repudiandae consequuntur molestias incidunt
+                  debitis aut atque. Aliquid?
+                </p>
+                <ul class="sentence-edit">
+                  <li class="sentence-variant" tabindex=0>SE Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio, at.</li>
+                  <li class="sentence-variant" tabindex=0>SE Blanditiis quidem fuga facere neque, eveniet assumenda ut impedit quibusdam?</li>
+                  <li class="sentence-variant" tabindex=0>SE Minima quod dolorum itaque voluptatum. Nobis inventore alias eius recusandae?</li>
+                </ul>
+              </li>
+              <li>
+                <p class="sentence" tabindex=0>
+                  Enim, nemo! Id nostrum consectetur dolores, fuga iusto
+                  veritatis voluptatibus.
+                </p>
+              </li>
+              <li>
+                <p class="sentence" tabindex=0>
+                  Numquam at veniam itaque error voluptas commodi obcaecati rem
+                  magni.
+                </p>
+              </li>
+              <li>
+                <p class="sentence" tabindex=0>
+                  In cum quae molestias nostrum, praesentium repellat reiciendis
+                  nam suscipit.
+                </p>
+              </li> -->
+          </ul>
+        </div>
+        <div class="editor-preview" tabindex=0>
+          <textarea placeholder="Put your notes here and tokenize them into sentences."></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <div id="preview">
-    <textarea placeholder="Put your notes here and tokenize them into sentences."></textarea>
-  </div>
-
-  <!-- About Modal -->
-  <div id="aboutModal" class="modal">
+  <!-- <div class="modal">
     <div class="modal-content">
-      <span id="aboutClose" class="close">&times;</span>
-      <h2>About Revisio</h2>
+      <span class="close">&times;</span>
+      <h1>About Revisio</h1>
       <p>This app is not like a typical text editor. It is for revisions of raw written material for articles, essays,
         and even chapters or sections of text. Its purpose is to automate the boring copying and pasting of sentences
         that you do in a typical text editor to sort them in the text. The app also allows you to rewrite each sentence
         and keeps a history of different versions of the sentences, so you can choose the best ones. </p>
-      <h2>How it works</h2>
+      <h1>How it works</h1>
       <ul>
         <li>The app splits the text into sentences that you can easily sort to achieve a nice flow for reading. </li>
         <li>You can write new versions of every sentence and compare it with the original sentence to choose the better
@@ -47,13 +101,12 @@
         <li>The app automatically saves your revision in the Local Storage of your browser.</li>
       </ul>
     </div>
-  </div>
+  </div> -->
 
-  <!-- Help Modal -->
-  <div id="helpModal" class="modal">
+  <!-- <div class="modal">
     <div class="modal-content">
-      <span id="helpClose" class="close">&times;</span>
-      <h2>Instructions</h2>
+      <span class="close">&times;</span>
+      <h1>Instructions</h1>
       <ol>
         <li>Copy the raw text into the right panel and click the <strong>Tokenize</strong> button. The text is then
           split into sentences.</li>
@@ -75,11 +128,11 @@
           <strong>Clean</strong> button. Be careful because this step cannot be undone.</li>
       </ol>
     </div>
-  </div>
+  </div> -->
 
-  <script src="/modal.js"></script>
-  <script src="array-prototype-move.js"></script>
-  <script src="/script.js"></script>
+  <!-- <script src="/modal.js"></script> -->
+  <!-- <script src="array-prototype-move.js"></script> -->
+  <!-- <script src="/script.js"></script> -->
 </body>
 
 </html>
