@@ -1,5 +1,5 @@
 var textArray = [];
-var editor = document.getElementById('editor');
+var editor = document.querySelector('.paragraph-list');
 loadData();
 
 // Array Operations
@@ -77,42 +77,37 @@ function clearData() {
   }
 }
 
-// Display Editor Content
+function displayEditorContent () {
+  var paragraphList = document.querySelector('.paragraph-list');
+  paragraphList.innerHTML = '';
 
-function displayEditorContent() {
-  editor.innerHTML = '';
-  textArray.forEach(function (sentence, index) {
-    var ulElement = createUlElement(index);
-    var liElement = createLiElement(sentence);
-    displayByParagraphs(sentence, ulElement, liElement);
-  });
+  for (var p = 0; p < textArray.length; p++) {
+    var paragraph = document.createElement('li');
+    paragraph.classList.add('paragraph');
+    paragraph.classList.add(p);
+    paragraphList.appendChild(paragraph);
+
+    var sentenceList = document.createElement('ul');
+    sentenceList.classList.add('sentence-list');
+    paragraph.appendChild(sentenceList);
+
+    for (var s = 0; s < textArray[p].length; s++) {
+      var sentenceLi = document.createElement('li');
+      sentenceList.appendChild(sentenceLi);
+
+      var sentence = document.createElement('p');
+      sentence.classList.add('sentence');
+      sentence.classList.add(s);
+      sentence.tabIndex = 0;
+      sentence.textContent = textArray[p][s];
+      sentenceLi.appendChild(sentence);
+    }
+  }
+
   activateDragAndDrop();
 }
 
-function createUlElement(index) {
-  var ulElement = document.createElement('ul');
-  ulElement.id = index;
-  ulElement.tabIndex = -1;
-  ulElement.setAttribute('draggable', 'true');
-  editor.appendChild(ulElement);
-  return ulElement;
-}
-
-function createLiElement(sentence) {
-  var liElement = document.createElement('li');
-  var lastSentenceVersion = sentence[sentence.length - 1];
-  liElement.textContent = lastSentenceVersion;
-  return liElement;
-}
-
-function displayByParagraphs(sentence, ulElement, liElement) {
-  if (sentence == '<P>') {
-    var separator = document.createElement('hr');
-    ulElement.appendChild(separator);
-  } else {
-    ulElement.appendChild(liElement);
-  }
-}
+// Add Sentence Variants
 
 function expandSentenceVersions(target, sentencePosition) {
   disableUlFocus();
@@ -189,72 +184,44 @@ function ignoreVersionEdit(target) {
   focusSentence.focus();
 }
 
-// Preview Text
-
 function previewText() {
-  var previewTextArea = document.querySelector('textarea');
-  var joinedText = joinText();
-  previewTextArea.value = joinedText;
-}
+  var text = []
+  var paragraphs = document.querySelectorAll('.sentence-list');
+  
+  paragraphs.forEach(function(p) {
+    var result = [];
+    var sentences = p.childNodes;
+    
+    sentences.forEach(function(s) {
+      result.push(s.textContent);
+    });
 
-function joinText() {
-  var joinedText = '';
-
-  textArray.forEach(function (sentence) {
-    if (sentence != '<P>') {
-      joinedText = joinBestSentences(joinedText, sentence);
-    } else {
-      joinedText = makeNewParagraph(joinedText);
-    }
+    text.push(result.join(' '));
   });
 
-  joinedText = joinedText.slice(0, -1);
-  return joinedText;
+  document.querySelector('textarea').value = text.join('\n\n');
 }
 
-function joinBestSentences(joinedText, sentence) {
-  var bestSentence = sentence[sentence.length - 1];
-  joinedText = joinedText + bestSentence + ' ';
-  return joinedText;
-}
-
-function makeNewParagraph(joinedText) {
-  joinedText = joinedText.slice(0, -1);
-  joinedText = joinedText + '\n\n';
-  return joinedText;
-}
-
-// Tokenize Text
-
-function tokenizePreviewText() {
-  textArray = [];
-  var textareaText = document.querySelector('textarea').value;
-  tokenizeTextarea(textareaText);
+function tokenizeText() {
+  var text = document.querySelector('textarea').value;
+  
+  // trim spaces
+  text = text.replace(/^\s+|\s+$/gm, '\n');
+  
+  // split into paragraphs
+  var paragraphs = text.split(/\n/);
+  
+  // remove empty paragraphs
+  paragraphs = paragraphs.filter(p => p !== '');
+  
+  // remove extra spaces
+  paragraphs = paragraphs.map(p => p = p.replace(/\s+/g, ' '));
+  
+  // split into sentences
+  var intoSentences = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
+  textArray = paragraphs.map(p => p.split(intoSentences));
+  
   saveData();
-}
-
-function tokenizeTextarea(textareaText) {
-  var tokenizeParagraphsRegex = /\n/;
-  var paragraphArray = textareaText.split(tokenizeParagraphsRegex);
-  tokenizeParagraphs(paragraphArray);
-  textArray.shift();
-}
-
-function tokenizeParagraphs(paragraphArray) {
-  paragraphArray.forEach(function (paragraph) {
-    if (paragraph !== '') {
-      var tokenizeSentencesRegex = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
-      var sentenceArray = paragraph.split(tokenizeSentencesRegex);
-      textArray.push(['<P>']);
-      tokenizeSentences(sentenceArray);
-    }
-  });
-}
-
-function tokenizeSentences(sentenceArray) {
-  sentenceArray.forEach(function (sentence) {
-    textArray.push([sentence]);
-  });
 }
 
 function copyToClipboard() {

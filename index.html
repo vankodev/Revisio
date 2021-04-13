@@ -19,11 +19,11 @@
       <div class="menu">
         <img class="logo" src="img/logo.svg" />
         <ul class="menu-list">
-          <li><a class="btn" href="javascript:tokenizePreviewText();">Tokenize</a></li>
-          <li><a class="btn" href="javascript:clearData();">Clear</a></li>
-          <li><a class="btn" href="javascript:copyToClipboard();">Copy</a></li>
-          <li><a class="btn" href="javascript:showModal('about');">About</a></li>
-          <li><a class="btn" href="javascript:showModal('help');">Help</a></li>
+          <li><a class="btn bg-light" href="javascript:tokenizeText();">Tokenize</a></li>
+          <li><a class="btn bg-light" href="javascript:clearData();">Clear</a></li>
+          <li><a class="btn bg-light" href="javascript:copyToClipboard();">Copy</a></li>
+          <li><a class="btn bg-light" href="javascript:showModal('about');">About</a></li>
+          <li><a class="btn bg-light" href="javascript:showModal('help');">Help</a></li>
         </ul>
       </div>
     </div>
@@ -32,52 +32,99 @@
   <section>
     <div class="container">
       <div class="editor">
-        <div class="editor-panel">
-          <ul class="sentence-list">
-            <!-- <li>
-                <p class="sentence" tabindex=0>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Saepe, dolore!
-                </p>
-              </li>
-              <li>
-                <p class="sentence" tabindex=0>
-                  Velit corrupti facilis enim iure eos repellat tempora, placeat
-                  doloribus.
-                </p>
-              </li>
-              <li>
-                <p class="sentence" tabindex=0>
-                  Dolor asperiores repudiandae consequuntur molestias incidunt
-                  debitis aut atque. Aliquid?
-                </p>
-                <ul class="sentence-edit">
-                  <li class="sentence-variant" tabindex=0>SE Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio, at.</li>
-                  <li class="sentence-variant" tabindex=0>SE Blanditiis quidem fuga facere neque, eveniet assumenda ut impedit quibusdam?</li>
-                  <li class="sentence-variant" tabindex=0>SE Minima quod dolorum itaque voluptatum. Nobis inventore alias eius recusandae?</li>
-                </ul>
-              </li>
-              <li>
-                <p class="sentence" tabindex=0>
-                  Enim, nemo! Id nostrum consectetur dolores, fuga iusto
-                  veritatis voluptatibus.
-                </p>
-              </li>
-              <li>
-                <p class="sentence" tabindex=0>
-                  Numquam at veniam itaque error voluptas commodi obcaecati rem
-                  magni.
-                </p>
-              </li>
-              <li>
-                <p class="sentence" tabindex=0>
-                  In cum quae molestias nostrum, praesentium repellat reiciendis
-                  nam suscipit.
-                </p>
-              </li> -->
+        <div class="editor-panel bg-light">
+          <ul class="paragraph-list">
+            <!-- <li class="paragraph">
+              <ul class="sentence-list">
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Velit corrupti facilis enim iure eos repellat tempora, placeat
+                    doloribus.
+                  </p>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Dolor asperiores repudiandae consequuntur molestias incidunt
+                    debitis aut atque. Aliquid?
+                  </p>
+
+                  <ul class="variant-list">
+                    <li class="variant" tabindex=0>Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio, at.</li>
+                    <li class="variant" tabindex=0>Blanditiis quidem fuga facere neque, eveniet assumenda ut impedit quibusdam?</li>
+                    <li class="variant" tabindex=0>Minima quod dolorum itaque voluptatum. Nobis inventore alias eius recusandae?</li>
+                  </ul>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Enim, nemo! Id nostrum consectetur dolores, fuga iusto
+                    veritatis voluptatibus.
+                  </p>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Numquam at veniam itaque error voluptas commodi obcaecati rem
+                    magni.
+                  </p>
+                </li>
+              </ul>
+            </li>
+
+            <li class="paragraph">
+              <ul class="sentence-list">
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Velit corrupti facilis enim iure eos repellat tempora, placeat
+                    doloribus.
+                  </p>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Enim, nemo! Id nostrum consectetur dolores, fuga iusto
+                    veritatis voluptatibus.
+                  </p>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Numquam at veniam itaque error voluptas commodi obcaecati rem
+                    magni.
+                  </p>
+                </li>
+              </ul>
+            </li>
+
+            <li class="paragraph">              <ul class="sentence-list">
+              <ul class="sentence-list">
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Velit corrupti facilis enim iure eos repellat tempora, placeat
+                    doloribus.
+                  </p>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Enim, nemo! Id nostrum consectetur dolores, fuga iusto
+                    veritatis voluptatibus.
+                  </p>
+                </li>
+
+                <li>
+                  <p class="sentence" tabindex=0>
+                    Numquam at veniam itaque error voluptas commodi obcaecati rem
+                    magni.
+                  </p>
+                </li>
+              </ul>
+            </li> -->
           </ul>
         </div>
-        <div class="editor-preview" tabindex=0>
+
+        <div class="editor-preview bg-light" tabindex=0>
           <textarea placeholder="Put your notes here and tokenize them into sentences."></textarea>
         </div>
       </div>
@@ -85,7 +132,7 @@
   </section>
 
   <div id="modal-about" class="modal">
-    <div class="modal-content">
+    <div class="modal-content bg-light">
       <span id="close-about" class="close">&times;</span>
       <div class="flow-content">
         <h1>About Revisio</h1>
@@ -106,7 +153,7 @@
   </div>
 
   <div id="modal-help" class="modal">
-    <div class="modal-content">
+    <div class="modal-content bg-light">
       <span id="close-help" class="close">&times;</span>
       <div class="flow-content">
         <h1>Instructions</h1>
@@ -135,8 +182,8 @@
   </div>
 
   <script src="/modal.js"></script>
-  <!-- <script src="array-prototype-move.js"></script> -->
-  <!-- <script src="/script.js"></script> -->
+  <script src="array-prototype-move.js"></script>
+  <script src="/script.js"></script>
 </body>
 
 </html>

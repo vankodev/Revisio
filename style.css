@@ -19,7 +19,7 @@
   --clr-neutral-800: #264559;
   --clr-neutral-900: #051926;
 
-  --clr-accent-200: #8db6d1;
+  --clr-accent-200: #b3d4ff;
   --clr-accent-400: #4f89d4;
 }
 
@@ -29,6 +29,11 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+*::selection {
+  color: var(--clr-neutral-900);
+  background-color: var(--clr-accent-200);
 }
 
 *:focus {
@@ -73,6 +78,11 @@ select {
   margin-top: 1rem;
 }
 
+.bg-light {
+  background-color: var(--clr-neutral-100);
+  border: 1px solid var(--clr-neutral-400);
+}
+
 /* General Styling */
 
 body {
@@ -105,7 +115,6 @@ body {
 
 .btn {
   color: var(--clr-neutral-700);
-  background-color: var(--clr-neutral-100);
   text-decoration: none;
   padding: 0.25rem 0.75rem;
 }
@@ -121,11 +130,17 @@ body {
 }
 
 .editor-panel {
-  background-color: var(--clr-neutral-100);
   flex: 0 1 60%;
   height: 90vh;
   margin-right: 1rem;
   padding: 0.5em;
+  overflow: auto;
+}
+
+.paragraph-list > * + * {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--clr-neutral-400);
 }
 
 .sentence-list {
@@ -136,17 +151,17 @@ body {
   padding: 0.5em;
 }
 
-.sentence-edit {
+.variant-list {
   background-color: var(--clr-neutral-300);
 }
 
-.sentence-variant {
+.variant {
   padding: 0.5em;
 }
 
-.sentence-variant[contenteditable="true"] {
+/* .variant[contenteditable="true"] {
   background-color: var(--clr-accent-400);
-}
+} */
 
 .editor-preview {
   flex: 0 1 40%;
@@ -181,7 +196,6 @@ body {
 }
 
 .modal-content {
-  background-color: var(--clr-neutral-100);
   padding: 2rem;
   max-width: 50rem;
   margin: 0 auto;
