@@ -163,6 +163,11 @@ body {
   background-color: var(--clr-accent-400);
 } */
 
+.sentence-content,
+.variant-content {
+  pointer-events: none;
+}
+
 .editor-preview {
   flex: 0 1 40%;
 }

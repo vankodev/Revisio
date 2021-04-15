@@ -1,0 +1,22 @@
+{
+  "name": "revisio-text-editor",
+  "version": "2.0.0",
+  "description": "Editor for text revisions.",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vankodev/revisio.git"
+  },
+  "author": "Ivan Ivanov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vankodev/revisio/issues"
+  },
+  "homepage": "https://github.com/vankodev/revisio#readme",
+  "devDependencies": {
+    "eslint": "^7.24.0"
+  }
+}

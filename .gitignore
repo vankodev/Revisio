@@ -1,5 +1,4 @@
 .archive/
 .vscode
 node_modules/
-.eslintrc.js
-
+.eslintrc.json

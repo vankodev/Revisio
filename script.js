@@ -92,15 +92,16 @@ function displayEditorContent () {
     paragraph.appendChild(sentenceList);
 
     for (var s = 0; s < textArray[p].length; s++) {
-      var sentenceLi = document.createElement('li');
-      sentenceList.appendChild(sentenceLi);
-
-      var sentence = document.createElement('p');
+      var sentence = document.createElement('li');
       sentence.classList.add('sentence');
       sentence.classList.add(s);
       sentence.tabIndex = 0;
-      sentence.textContent = textArray[p][s];
-      sentenceLi.appendChild(sentence);
+      sentenceList.appendChild(sentence);
+
+      var sentenceContent = document.createElement('p');
+      sentenceContent.classList.add('sentence-content');
+      sentenceContent.textContent = textArray[p][s];
+      sentence.appendChild(sentenceContent);
     }
   }
 
@@ -251,30 +252,25 @@ editor.addEventListener('dblclick', function (event) {
 }, true);
 
 editor.addEventListener('keydown', function (event) {
-  var target = event.target;
-  var sentencePosition = parseInt(target.id);
-  var newSentencePosition;
-  var firstSentencePosition = 0;
-  var lastSentencePosition = parseInt(target.parentNode.lastChild.id);
+  var sentence = event.target;
+  var sentences = sentence.parentNode.querySelectorAll('.sentence');
+  var paragraph = sentence.closest('.paragraph');
+  var paragraphs = document.querySelectorAll('.paragraph');
 
   switch (event.key) {
     case "Up":
     case "ArrowUp":
       event.preventDefault();
 
-      if (sentencePosition !== firstSentencePosition) {
-        var previousSentencePosition = sentencePosition - 1;
-
-        if (target.matches('ul')) {
-          if (event.getModifierState('Alt')) {
-            moveSentence(sentencePosition, previousSentencePosition);
+      if (sentence.matches('.sentence')) {
+        if (sentence === firstFrom(sentences)) {
+          if (paragraph === firstFrom(paragraphs)) {
+            lastChildFrom(lastFrom(paragraphs)).focus();
+          } else {
+            lastChildFrom(previous(paragraph)).focus();
           }
-
-          selectNewPosition(previousSentencePosition);
-        }
-
-        if (target.matches('li')) {
-          selectNewPosition(previousSentencePosition);
+        } else {
+          previous(sentence).focus();
         }
       }
       break;
@@ -282,97 +278,91 @@ editor.addEventListener('keydown', function (event) {
     case "ArrowDown":
       event.preventDefault();
 
-      if (sentencePosition !== lastSentencePosition) {
-        var nextSentencePosition = sentencePosition + 1;
-
-        if (target.matches('ul')) {
-          if (event.getModifierState('Alt')) {
-            moveSentence(sentencePosition, nextSentencePosition);
+      if (sentence.matches('.sentence')) {
+        if (sentence === lastFrom(sentences)) {
+          if (paragraph === lastFrom(paragraphs)) {
+            firstChildFrom(firstFrom(paragraphs)).focus();
+          } else {
+            firstChildFrom(next(paragraph)).focus();
           }
-
-          selectNewPosition(nextSentencePosition);
-        }
-
-        if (target.matches('li')) {
-          selectNewPosition(nextSentencePosition);
+        } else {
+          next(sentence).focus();
         }
       }
       break;
     case "PageUp":
-      if (target.matches('ul') && sentencePosition !== firstSentencePosition) {
-        event.preventDefault();
-        newSentencePosition = getPreviousParagraph(target);
+      event.preventDefault();
 
-        if (event.getModifierState('Alt')) {
-          moveSentence(sentencePosition, newSentencePosition);
+      if (sentence.matches('.sentence')) {
+        if (paragraph === firstFrom(paragraphs)) {
+          firstChildFrom(lastFrom(paragraphs)).focus();
+        } else {
+          firstChildFrom(previous(paragraph)).focus();
         }
-
-        selectNewPosition(newSentencePosition);
       }
       break;
     case "PageDown":
-      if (target.matches('ul') && sentencePosition !== lastSentencePosition) {
-        event.preventDefault();
-        newSentencePosition = getNextParagraph(target);
+      event.preventDefault();
 
-        if (event.getModifierState('Alt')) {
-          moveSentence(sentencePosition, newSentencePosition);
+      if (sentence.matches('.sentence')) {
+        if (paragraph === lastFrom(paragraphs)) {
+          firstChildFrom(firstFrom(paragraphs)).focus();
+        } else {
+          firstChildFrom(next(paragraph)).focus();
         }
-
-        selectNewPosition(newSentencePosition);
       }
       break;
     case "Enter":
-      if (target.matches('ul')) {
+      if (sentence.matches('ul')) {
         if (event.getModifierState('Alt')) {
-          createSentenceInput(target);
+          createSentenceInput(sentence);
         } else {
-          expandSentenceVersions(target, sentencePosition);
+          expandSentenceVersions(sentence, sentenceIndex);
         }
       }
-      if (target.matches('li')) {
+      if (sentence.matches('li')) {
         if (event.getModifierState('Alt')) {
-          createVersionInput(target.parentNode);
-        } else if (target.isContentEditable) {
-          saveEdit(target);
+          createVersionInput(sentence.parentNode);
+        } else if (sentence.isContentEditable) {
+          saveEdit(sentence);
         } else {
-          selectBestVersion(target);
+          selectBestVersion(sentence);
         }
       }
-      if (target.matches('#sentenceInput')) {
-        createSentence(target);
+      if (sentence.matches('#sentenceInput')) {
+        createSentence(sentence);
       }
-      if (target.matches('#versionInput')) {
-        createVersion(target);
+      if (sentence.matches('#versionInput')) {
+        createVersion(sentence);
       }
       break;
     case "Escape":
-      if (target.matches('ul')) {
-        target.blur();
+      if (sentence.matches('ul')) {
+        sentence.blur();
       }
-      if (target.matches('li')) {
-        if (target.isContentEditable) {
-          ignoreVersionEdit(target);
+      if (sentence.matches('li')) {
+        if (sentence.isContentEditable) {
+          ignoreVersionEdit(sentence);
         } else {
-          colapseSentenceVersions(target);
+          colapseSentenceVersions(sentence);
         }
       }
-      if (target.matches('#sentenceInput')) {
-        removeSentenceInput(target);
+      if (sentence.matches('#sentenceInput')) {
+        removeSentenceInput(sentence);
       }
-      if (target.matches('#versionInput')) {
-        removeVersionInput(target);
+      if (sentence.matches('#versionInput')) {
+        removeVersionInput(sentence);
       }
       break;
     case "Delete":
-      if (target.matches('ul')) {
-        deleteSentence(sentencePosition);
-        selectSentence(sentencePosition);
+      if (sentence.matches('ul')) {
+        deleteSentence(sentenceIndex);
+        selectSentence(sentenceIndex);
       }
       break;
     case "p":
-      if (target.matches('ul') && event.getModifierState('Alt')) {
-        createNewParagraph(sentencePosition);
+      if (sentence.matches('ul') && event.getModifierState('Alt')) {
+        createNewParagraph(sentenceIndex);
       }
       break;
     default:
@@ -381,6 +371,34 @@ editor.addEventListener('keydown', function (event) {
 }, true);
 
 // Handlers
+
+function previous(element) {
+  return element.previousSibling;
+}
+
+function next(element) {
+  return element.nextSibling;
+}
+
+function firstFrom(elements) {
+  return elements[0];
+}
+
+function lastFrom(elements) {
+  return elements[elements.length -1];
+}
+
+function firstChildFrom(paragraph) {
+  return firstFrom(paragraph.querySelectorAll('.sentence'));
+}
+
+function lastChildFrom(paragraph) {
+  return lastFrom(paragraph.querySelectorAll('.sentence'));
+}
+
+function getElementIndex(element) { 
+  return element.classList[1];
+};
 
 function getPreviousParagraph(target) {
   do {
