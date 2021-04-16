@@ -20,9 +20,81 @@ function deleteSentence(sentencePosition) {
   saveData();
 }
 
-function moveSentence(sentencePosition, newSentencePosition) {
-  textArray.move(sentencePosition, newSentencePosition);
+function moveUp(par, el) {
+  var e = textArray[par].splice(el, 1)[0];
+  el -= 1;
+  textArray[par].splice(el, 0, e); 
+
   saveData();
+  focusOn(par, el);
+}
+
+function moveDown(par, el) {
+  var e = textArray[par].splice(el, 1)[0];
+  el += 1;
+  textArray[par].splice(el, 0, e); 
+
+  saveData();
+  focusOn(par, el);
+}
+
+function jumpUp(par) {
+  par -= 1;
+  textArray[par].push(textArray[par + 1].shift());
+  el = textArray[par].length - 1;
+
+  saveData();
+  focusOn(par, el);
+}
+
+function jumpDown(par) {
+  par += 1;
+  textArray[par].unshift(textArray[par - 1].pop());
+  el = 0;
+
+  saveData();
+  focusOn(par, el);
+}
+
+function toPrevious(par, el) {
+  var e = textArray[par].splice(el, 1);
+  par -= 1;
+  textArray[par].unshift(e[0]);
+
+  saveData();
+  focusOn(par, 0);
+}
+
+function toNext(par, el) {
+  var e = textArray[par].splice(el, 1);
+  par += 1;
+  textArray[par].unshift(e[0]);
+ 
+  saveData();
+  focusOn(par, 0);
+}
+
+function toLast(par, el) {
+  var e = textArray[par].splice(el, 1);
+  textArray[textArray.length - 1].unshift(e[0]);
+  par = textArray.length - 1;
+
+  saveData();
+  focusOn(par, 0);
+}
+
+function toFirst(par, el) {
+  var e = textArray[par].splice(el, 1);
+  textArray[0].unshift(e[0]);
+
+  saveData();
+  focusOn(0, 0);
+}
+
+function focusOn(par, el) {
+  document.querySelectorAll('.paragraph')[par]
+    .querySelectorAll('.sentence')[el]
+    .focus();
 }
 
 function addVersion(sentencePosition, versionText) {
@@ -265,12 +337,17 @@ editor.addEventListener('keydown', function (event) {
       if (sentence.matches('.sentence')) {
         if (sentence === firstFrom(sentences)) {
           if (paragraph === firstFrom(paragraphs)) {
-            lastChildFrom(lastFrom(paragraphs)).focus();
+            !event.getModifierState('Alt')
+              && lastChildFrom(lastFrom(paragraphs)).focus();
           } else {
-            lastChildFrom(previous(paragraph)).focus();
+            event.getModifierState('Alt')
+            ? jumpUp(getIndex(paragraph))
+            : lastChildFrom(previous(paragraph)).focus();
           }
         } else {
-          previous(sentence).focus();
+          event.getModifierState('Alt')
+            ? moveUp(getIndex(paragraph), getIndex(sentence))
+            : previous(sentence).focus();
         }
       }
       break;
@@ -281,12 +358,17 @@ editor.addEventListener('keydown', function (event) {
       if (sentence.matches('.sentence')) {
         if (sentence === lastFrom(sentences)) {
           if (paragraph === lastFrom(paragraphs)) {
-            firstChildFrom(firstFrom(paragraphs)).focus();
+            ! event.getModifierState('Alt')
+              && firstChildFrom(firstFrom(paragraphs)).focus();
           } else {
-            firstChildFrom(next(paragraph)).focus();
+            event.getModifierState('Alt')
+            ? jumpDown(getIndex(paragraph))
+            : firstChildFrom(next(paragraph)).focus();
           }
         } else {
-          next(sentence).focus();
+          event.getModifierState('Alt')
+            ? moveDown(getIndex(paragraph), getIndex(sentence))
+            : next(sentence).focus();
         }
       }
       break;
@@ -295,9 +377,13 @@ editor.addEventListener('keydown', function (event) {
 
       if (sentence.matches('.sentence')) {
         if (paragraph === firstFrom(paragraphs)) {
-          firstChildFrom(lastFrom(paragraphs)).focus();
+          event.getModifierState('Alt')
+            ? toLast(getIndex(paragraph), getIndex(sentence))
+            : firstChildFrom(lastFrom(paragraphs)).focus();
         } else {
-          firstChildFrom(previous(paragraph)).focus();
+          event.getModifierState('Alt')
+            ? toPrevious(getIndex(paragraph), getIndex(sentence))
+            : firstChildFrom(previous(paragraph)).focus();
         }
       }
       break;
@@ -306,9 +392,13 @@ editor.addEventListener('keydown', function (event) {
 
       if (sentence.matches('.sentence')) {
         if (paragraph === lastFrom(paragraphs)) {
-          firstChildFrom(firstFrom(paragraphs)).focus();
+          event.getModifierState('Alt')
+            ? toFirst(getIndex(paragraph), getIndex(sentence))
+            : firstChildFrom(firstFrom(paragraphs)).focus();
         } else {
-          firstChildFrom(next(paragraph)).focus();
+          event.getModifierState('Alt')
+            ? toNext(getIndex(paragraph), getIndex(sentence))
+            : firstChildFrom(next(paragraph)).focus();
         }
       }
       break;
@@ -396,30 +486,9 @@ function lastChildFrom(paragraph) {
   return lastFrom(paragraph.querySelectorAll('.sentence'));
 }
 
-function getElementIndex(element) { 
-  return element.classList[1];
+function getIndex(element) { 
+  return Number(element.classList[1]);
 };
-
-function getPreviousParagraph(target) {
-  do {
-    target = target.previousSibling;
-  } while (target.firstChild.nodeName !== 'HR' && target !== target.parentNode.firstChild);
-
-  return parseInt(target.id);
-}
-
-function getNextParagraph(target) {
-  do {
-    target = target.nextSibling;
-  } while (target.firstChild.nodeName !== 'HR' && target !== target.parentNode.lastChild);
-
-  return parseInt(target.id);
-}
-
-function selectNewPosition(newSentencePosition) {
-  var newPosition = document.getElementById(newSentencePosition);
-  newPosition.focus();
-}
 
 function makeEditable(target) {
   var c = target.parentNode.children;
