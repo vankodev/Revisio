@@ -149,6 +149,7 @@ body {
 
 .sentence {
   padding: 0.5em;
+  cursor: move;
 }
 
 .variant-list {
@@ -166,6 +167,10 @@ body {
 .sentence-content,
 .variant-content {
   pointer-events: none;
+}
+
+.dragging {
+  outline: 2px solid var(--clr-accent-400);
 }
 
 .editor-preview {

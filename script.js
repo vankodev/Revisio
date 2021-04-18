@@ -20,6 +20,18 @@ function deleteSentence(sentencePosition) {
   saveData();
 }
 
+function move(startPar, startSent, endPar, endSent) {
+  if (startPar === endPar && startSent < endSent) {
+    endSent -= 1;
+  }
+
+  var e = textArray[startPar].splice(startSent, 1)[0];
+  textArray[endPar].splice(endSent, 0, e)
+
+  saveData();
+  focusOn(endPar, endSent);
+}
+
 function moveUp(par, el) {
   var e = textArray[par].splice(el, 1)[0];
   el -= 1;
@@ -125,6 +137,7 @@ function moveBestVersion(sentencePosition, versionPosition) {
 // Local Storage
 
 function saveData() {
+  textArray = textArray.filter(e => e.length !== 0);
   localStorage.setItem('revisio', JSON.stringify(textArray));
   displayEditorContent();
   previewText();
@@ -167,6 +180,7 @@ function displayEditorContent () {
       var sentence = document.createElement('li');
       sentence.classList.add('sentence');
       sentence.classList.add(s);
+      sentence.setAttribute('draggable', 'true');
       sentence.tabIndex = 0;
       sentenceList.appendChild(sentence);
 
@@ -598,78 +612,50 @@ function selectSentence(sentencePosition) {
 // Drag and Drop
 
 function activateDragAndDrop() {
-  var items = editor.querySelectorAll("ul");
+  const paragraphs = document.querySelectorAll('.paragraph');
+  const sentences = document.querySelectorAll('.sentence');
 
-  for (const item of items) {
-    item.addEventListener('dragstart', dragStart);
-    item.addEventListener('drag', drag);
-    item.addEventListener('dragend', dragEnd);
-    item.addEventListener('dragenter', dragEnter, true);
-    item.addEventListener('dragover', dragOver);
-    item.addEventListener('dragleave', dragLeave, true);
-    item.addEventListener('drop', drop);
+  sentences.forEach(sentence => {
+    sentence.addEventListener('dragstart', e => {
+      sentence.classList.add('dragging');
+
+      startSent = getIndex(sentence);
+      startPar = getIndex(sentence.closest('.paragraph'));
+    })
+
+    sentence.addEventListener('dragend', e => {
+      move(startPar, startSent, endPar, endSent);
+    })
+  })
+
+  paragraphs.forEach(paragraph => {
+    paragraph.addEventListener('dragover', e => {
+      e.preventDefault();
+      const sentence = document.querySelector('.dragging');
+      const afterElement = getDragAfterElement(paragraph, e.clientY);
+      endPar = getIndex(sentence.closest('.paragraph'));
+
+      if (afterElement == null) {
+        paragraph.firstChild.appendChild(sentence);
+        endSent = textArray[endPar].length;
+      } else {
+        paragraph.firstChild.insertBefore(sentence, afterElement);
+        endSent = getIndex(afterElement);
+      }
+    })
+  })
+
+  function getDragAfterElement(paragraph, y) {
+    const draggableElements = [...paragraph.querySelectorAll('.sentence:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height /2;
+      if (offset < 0  && offset > closest.offset) {
+        return { offset: offset, element: child }
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
-}
-
-function dragStart(event) {
-  var target = event.target;
-
-  if (target.matches('li')) {
-    target = target.parentNode;
-  }
-
-  target.classList.add('nodropzone');
-  if (target.nextSibling) {
-    target.nextSibling.classList.add('nodropzone');
-  }
-  
-  var draggedSentencePosition = String(target.id);
-  event.dataTransfer.setData('text/plain', draggedSentencePosition);
-}
-
-function drag() {
-  // Fires as a draggable element is being dragged around the screen
-}
-
-function dragEnd() {
-  // Occurs at the very end of the drag-and-drop action
-}
-
-function dragEnter(event) {
-  var target = event.target;
-
-  if (target.matches('li')) {
-    target = target.parentNode;
-  }
-
-  if (!target.matches('.nodropzone')) {
-    target.classList.add('dropzone');
-  }
-}
-
-function dragOver(event) {
-  event.preventDefault();
-}
-
-function dragLeave(event) {
-  var target = event.target;
-  target.classList.remove('dropzone');
-}
-
-function drop(event) {
-  var target = event.target;
-
-  if (target.matches('li')) {
-    target = target.parentNode;
-  }
-
-  event.preventDefault();
-  var draggedSentencePosition = parseInt(event.dataTransfer.getData('text/plain'));
-  var newSentencePosition = parseInt(target.id);
-
-  if (draggedSentencePosition < newSentencePosition) {
-    newSentencePosition--;
-  }
-
-  moveSentence(draggedSentencePosition, newSentencePosition);
 }
