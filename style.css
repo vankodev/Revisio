@@ -94,6 +94,12 @@ body {
   font-weight: 400;
 }
 
+input {
+  padding: 0.5em;
+  border: none;
+  width: 100%;
+}
+
 /* Header */
 
 .menu {
@@ -150,6 +156,10 @@ body {
 .sentence {
   padding: 0.5em;
   cursor: move;
+}
+
+.sentence-input {
+  background-color: var(--clr-neutral-300);
 }
 
 .variant-list {
