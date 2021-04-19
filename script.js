@@ -15,9 +15,28 @@ function insertSentence(sentencePosition, sentenceText) {
   saveData();
 }
 
-function deleteSentence(sentencePosition) {
-  textArray.splice(sentencePosition, 1);
+function deleteSentence(par, el) {
+  textArray[par].splice(el, 1);
+
+  const firstSentence = el === 0,
+    lastSentence = textArray[par].length === el,
+    lastParagraph = textArray.length - 1 === par,
+    oneSentenceLeft = par === 0 && el === 0 && textArray.length === 1 && textArray[par].length === 0;
+
+  if (oneSentenceLeft) {
+    saveData();
+    return
+  } else if (firstSentence && lastSentence && lastParagraph) {
+    par -= 1
+    el = textArray[par].length - 1;
+  } else if (firstSentence && lastSentence) {
+    el = 0;
+  } else if (lastSentence) {
+    el -= 1;
+  }
+
   saveData();
+  focusOn(par, el);
 }
 
 function move(startPar, startSent, endPar, endSent) {
@@ -459,9 +478,8 @@ editor.addEventListener('keydown', function (event) {
       }
       break;
     case "Delete":
-      if (sentence.matches('ul')) {
-        deleteSentence(sentenceIndex);
-        selectSentence(sentenceIndex);
+      if (sentence.matches('.sentence')) {
+        deleteSentence(getIndex(paragraph), getIndex(sentence));
       }
       break;
     case "p":
