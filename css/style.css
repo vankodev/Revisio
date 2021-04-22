@@ -158,8 +158,8 @@ input {
   cursor: move;
 }
 
-.sentence-input {
-  background-color: var(--clr-neutral-300);
+.sentence > * + * {
+  display: none;
 }
 
 .variant-list {
@@ -181,6 +181,20 @@ input {
 
 .dragging {
   outline: 2px solid var(--clr-accent-400);
+}
+
+.input {
+  background-color: var(--clr-neutral-300);
+}
+
+.edit-mode {
+  background-color: var(--clr-neutral-300);
+  padding: 0;
+}
+
+.edit-mode > * {
+  display: block;
+  padding: 0.5em;
 }
 
 .editor-preview {
