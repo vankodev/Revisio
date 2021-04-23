@@ -3,29 +3,29 @@ class Model {
     this.revision = [
       [
         [
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          "Loremka ipsumka dolorka sitka ametka.",
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+          'Loremka ipsumka dolorka sitka ametka.',
         ],
         [
-          "Morbi cursus aliquam eros, vel cursus ligula hendrerit vitae.",
-          "Morbinka cursuska aliquamka roska, velka cursuska ligualka."
+          'Morbi cursus aliquam eros, vel cursus ligula hendrerit vitae.',
+          'Morbinka cursuska aliquamka roska, velka cursuska ligualka.',
         ],
         [
-          "Etiam imperdiet vitae nisl sed volutpat.",
-          "Etiamka imperdietka vitaenka nislanka sedanka volutatka.",
+          'Etiam imperdiet vitae nisl sed volutpat.',
+          'Etiamka imperdietka vitaenka nislanka sedanka volutatka.',
         ],
       ],
       [
-        ["Quisque tristique tellus quis blandit rhoncus."],
-        ["Morbi fringilla imperdiet orci.", "Praesent id dictum nunc."],
+        ['Quisque tristique tellus quis blandit rhoncus.'],
+        ['Morbi fringilla imperdiet orci.', 'Praesent id dictum nunc.'],
         [
-          "Sed sit amet ornare nunc.",
-          "Sedka sitka ametka ornanertka.",
-          "Amenka ornarka nunancunka.",
+          'Sed sit amet ornare nunc.',
+          'Sedka sitka ametka ornanertka.',
+          'Amenka ornarka nunancunka.',
         ],
-        ["Vestibulum quis leo mollis, commodo turpis et, porta tortor."],
+        ['Vestibulum quis leo mollis, commodo turpis et, porta tortor.'],
         [
-          "Vestibulum eget vehicula tellus, vel congue sapien. Etiam non vulputate purus.",
+          'Vestibulum eget vehicula tellus, vel congue sapien. Etiam non vulputate purus.',
         ],
       ],
     ];
@@ -84,7 +84,7 @@ class Model {
 
 class View {
   constructor() {
-    this.paragraphList = this.getElement(".paragraph-list");
+    this.paragraphList = this.getElement('.paragraph-list');
   }
 
   createElement(tag, className) {
@@ -110,23 +110,23 @@ class View {
   }
 
   displayRevision(revision) {
-    this.paragraphList.innerHTML = "";
+    this.paragraphList.innerHTML = '';
 
     for (var p = 0; p < revision.length; p++) {
-      const paragraph = this.createElement("li", "paragraph");
+      const paragraph = this.createElement('li', 'paragraph');
       this.paragraphList.appendChild(paragraph);
 
-      const sentenceList = this.createElement("ul", "sentence-list");
+      const sentenceList = this.createElement('ul', 'sentence-list');
       paragraph.appendChild(sentenceList);
 
       for (var s = 0; s < revision[p].length; s++) {
-        const sentence = this.createElement("li", "sentence");
-        sentence.setAttribute("draggable", "true");
+        const sentence = this.createElement('li', 'sentence');
+        sentence.setAttribute('draggable', 'true');
         sentence.tabIndex = 0;
         sentenceList.appendChild(sentence);
 
         for (var v = 0; v < revision[p][s].length; v++) {
-          const variant = this.createElement("p", "variant");
+          const variant = this.createElement('p', 'variant');
           variant.textContent = revision[p][s][v];
           sentence.appendChild(variant);
         }
@@ -154,35 +154,35 @@ class Controller {
 
   handleDeleteSentence = (p, s) => {
     this.model.deleteSentence(p, s);
-  }
+  };
 
   handleSplitParagraph = (p, s) => {
     this.model.splitParagraph(p, s);
-  }
+  };
 
   handleCombineParagraphs = (p) => {
     this.model.combineParagraphs(p);
-  }
+  };
 
   handleAddVariant = (text, p, s) => {
     this.model.addVariant(text, p, s);
-  }
+  };
 
   handleDeleteVariant = (p, s, v) => {
     this.model.deleteVariant(p, s, v);
-  }
+  };
 
   handleChooseBest = (p, s, v) => {
     this.model.chooseBest(p, s, v);
-  }
+  };
 
   handleMoveSentence = (p, s, p2, s2) => {
     this.model.moveSentence(p, s, p2, s2);
-  }
+  };
 
   handleMoveParagraph = (p, p2) => {
     this.model.moveParagraph(p, p2);
-  }
+  };
 }
 
 const app = new Controller(new Model(), new View());
