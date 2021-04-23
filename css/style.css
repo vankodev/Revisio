@@ -154,7 +154,6 @@ input {
 }
 
 .sentence {
-  padding: 0.5em;
   cursor: move;
 }
 
@@ -174,10 +173,10 @@ input {
   background-color: var(--clr-accent-400);
 } */
 
-.sentence-content,
+/* .sentence-content,
 .variant-content {
   pointer-events: none;
-}
+} */
 
 .dragging {
   outline: 2px solid var(--clr-accent-400);

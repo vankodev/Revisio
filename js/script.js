@@ -83,14 +83,70 @@ class Model {
 }
 
 class View {
-  constructor() {}
+  constructor() {
+    this.paragraphList = this.getElement(".paragraph-list");
+  }
+
+  createElement(tag, className) {
+    const element = document.createElement(tag);
+
+    if (className) element.classList.add(className);
+
+    return element;
+  }
+
+  getElement(selector) {
+    const element = document.querySelector(selector);
+
+    return element;
+  }
+
+  getElementIndex(element) {
+    var index = 0;
+    while ((element = element.previousElementSibling)) {
+      index++;
+    }
+    return index;
+  }
+
+  displayRevision(revision) {
+    this.paragraphList.innerHTML = "";
+
+    for (var p = 0; p < revision.length; p++) {
+      const paragraph = this.createElement("li", "paragraph");
+      this.paragraphList.appendChild(paragraph);
+
+      const sentenceList = this.createElement("ul", "sentence-list");
+      paragraph.appendChild(sentenceList);
+
+      for (var s = 0; s < revision[p].length; s++) {
+        const sentence = this.createElement("li", "sentence");
+        sentence.setAttribute("draggable", "true");
+        sentence.tabIndex = 0;
+        sentenceList.appendChild(sentence);
+
+        for (var v = 0; v < revision[p][s].length; v++) {
+          const variant = this.createElement("p", "variant");
+          variant.textContent = revision[p][s][v];
+          sentence.appendChild(variant);
+        }
+      }
+    }
+  }
 }
 
 class Controller {
   constructor(model, view) {
     this.model = model;
     this.view = view;
+
+    // Display initial revision
+    this.onRevisionChanged(this.model.revision);
   }
+
+  onRevisionChanged = (revision) => {
+    this.view.displayRevision(revision);
+  };
 }
 
 const app = new Controller(new Model(), new View());
