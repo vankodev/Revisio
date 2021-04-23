@@ -147,6 +147,42 @@ class Controller {
   onRevisionChanged = (revision) => {
     this.view.displayRevision(revision);
   };
+
+  handleAddSentence = (text, p, s) => {
+    this.model.addSentence(text, p, s);
+  };
+
+  handleDeleteSentence = (p, s) => {
+    this.model.deleteSentence(p, s);
+  }
+
+  handleSplitParagraph = (p, s) => {
+    this.model.splitParagraph(p, s);
+  }
+
+  handleCombineParagraphs = (p) => {
+    this.model.combineParagraphs(p);
+  }
+
+  handleAddVariant = (text, p, s) => {
+    this.model.addVariant(text, p, s);
+  }
+
+  handleDeleteVariant = (p, s, v) => {
+    this.model.deleteVariant(p, s, v);
+  }
+
+  handleChooseBest = (p, s, v) => {
+    this.model.chooseBest(p, s, v);
+  }
+
+  handleMoveSentence = (p, s, p2, s2) => {
+    this.model.moveSentence(p, s, p2, s2);
+  }
+
+  handleMoveParagraph = (p, p2) => {
+    this.model.moveParagraph(p, p2);
+  }
 }
 
 const app = new Controller(new Model(), new View());
