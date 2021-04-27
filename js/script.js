@@ -39,6 +39,10 @@ class Model {
     this.onSentenceDeleted = callback;
   }
 
+  // Modifying the revision's data
+  // 'p' is paragraph index, 's' is sentence index
+  // 'p2' and 's2' are next position indexes
+
   // Add sentence by its indexes
   addSentence(text, p, s) {
     this.revision[p].splice(s, 0, [text]);
@@ -87,7 +91,7 @@ class Model {
   // Choose best sentence variant
   chooseBest(p, s, v) {
     let best = this.revision[p][s].splice(v, 1);
-    this.revision[p][s].unshift(...best);
+    this.revision[p][s].unshift(best[0]);
 
     this.onRevisionChanged(this.revision);
   }
@@ -95,7 +99,8 @@ class Model {
   // Move sentence by start and end indexes
   moveSentence(p, s, p2, s2) {
     let sentence = this.revision[p].splice(s, 1);
-    this.revision[p2].splice(s2, 0, ...sentence);
+    console.log(sentence);
+    this.revision[p2].splice(s2, 0, sentence[0]);
 
     this.onRevisionChanged(this.revision);
   }
@@ -103,7 +108,7 @@ class Model {
   // Move paragraph by start and end indexes
   moveParagraph(p, p2) {
     let paragraph = this.revision.splice(p, 1);
-    this.revision.splice(p2, 0, ...paragraph);
+    this.revision.splice(p2, 0, paragraph[0]);
 
     this.onRevisionChanged(this.revision);
   }
@@ -174,9 +179,14 @@ class View {
     }
   }
 
+  // Event Listeners
+  // 'p' is the paragraph index, 's' is the sentence index
+  // 'p2' and 's2' are the next position indexes
+
   bindAddSentence(handler) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
+        // Create 'Add Sentence' Input
         if (event.key === 'Enter' && !event.getModifierState('Control')) {
           const sentenceInput = this.createElement('input', 'sentence-input');
           sentenceInput.type = 'text';
@@ -186,6 +196,7 @@ class View {
       }
 
       if (event.target.className === 'sentence-input') {
+        // Create new sentence
         if (event.key === 'Enter') {
           let text = event.target.value;
           const p = this.getElementIndex(event.target.closest('.paragraph'));
@@ -281,6 +292,7 @@ class View {
   bindMoveSentence(handler, revision) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
+        // Move the sentence up
         if (event.key === 'ArrowUp' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
@@ -300,6 +312,7 @@ class View {
           handler(p, s, p2, s2);
         }
 
+        // Move the sentence down
         if (event.key === 'ArrowDown' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
@@ -319,6 +332,7 @@ class View {
           handler(p, s, p2, s2);
         }
 
+        // Move the sentence to the previous paragraph
         if (event.key === 'PageUp' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
@@ -334,6 +348,7 @@ class View {
           handler(p, s, p2, s2);
         }
 
+        // Move the sentence to the next paragraph
         if (event.key === 'PageDown' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
@@ -349,11 +364,13 @@ class View {
           handler(p, s, p2, s2);
         }
 
+        // Move the sentence to the beginning of the paragraph
         if (event.key === 'Home' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
           let p2, s2;
 
+          // Move the sentence to the beginning of the revision
           if (event.getModifierState('Control')) {
             p2 = 0;
             s2 = 0;
@@ -365,11 +382,13 @@ class View {
           handler(p, s, p2, s2);
         }
 
+        // Move the sentence to the end of the paragraph
         if (event.key === 'End' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
           let p2, s2;
 
+          // Move the sentence to the end of the revision
           if (event.getModifierState('Control')) {
             p2 = revision.length - 1;
             s2 = revision[p2].length;
@@ -392,6 +411,7 @@ class View {
           !event.getModifierState('Alt') &&
           !event.getModifierState('Control');
 
+        // Select the previous sentence
         if (event.key === 'ArrowUp' && ignoreModfierKeys) {
           event.preventDefault();
           let p = this.getElementIndex(event.target.closest('.paragraph'));
@@ -410,6 +430,7 @@ class View {
           this.focusOnElement(p, s);
         }
 
+        // Select the next sentence
         if (event.key === 'ArrowDown' && ignoreModfierKeys) {
           event.preventDefault();
           let p = this.getElementIndex(event.target.closest('.paragraph'));
@@ -428,6 +449,7 @@ class View {
           this.focusOnElement(p, s);
         }
 
+        // Select the first sentence of the previous paragraph
         if (event.key === 'PageUp' && ignoreModfierKeys) {
           event.preventDefault();
           let p = this.getElementIndex(event.target.closest('.paragraph'));
@@ -443,6 +465,7 @@ class View {
           this.focusOnElement(p, s);
         }
 
+        // Select the first sentence of the next paragraph
         if (event.key === 'PageDown' && ignoreModfierKeys) {
           event.preventDefault();
           let p = this.getElementIndex(event.target.closest('.paragraph'));
@@ -458,6 +481,7 @@ class View {
           this.focusOnElement(p, s);
         }
 
+        // Select the first sentence in the paragraph
         if (
           event.key === 'Home' &&
           !event.getModifierState('Shift') &&
@@ -467,6 +491,7 @@ class View {
           let p = this.getElementIndex(event.target.closest('.paragraph'));
           let s = this.getElementIndex(event.target);
 
+          // Select the first sentence in the revision
           if (event.getModifierState('Control')) {
             p = 0;
           }
@@ -475,6 +500,7 @@ class View {
           this.focusOnElement(p, s);
         }
 
+        // Select the last sentence in the paragraph
         if (
           event.key === 'End' &&
           !event.getModifierState('Shift') &&
@@ -484,6 +510,7 @@ class View {
           let p = this.getElementIndex(event.target.closest('.paragraph'));
           let s = this.getElementIndex(event.target);
 
+          // Select the last sentence in the revision
           if (event.getModifierState('Control')) {
             p = revision.length - 1;
           }
@@ -495,8 +522,40 @@ class View {
     });
   }
 
-  bindMoveParagraph(handler) {
-    // handler(p, p2);
+  bindMoveParagraph(handler, revision) {
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.className === 'sentence') {
+        // Move the paragraph up
+        if (event.code === 'Comma' && event.getModifierState('Control')) {
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target);
+          let p2;
+
+          if (p === 0) {
+            p2 = revision.length - 1;
+          } else {
+            p2 = p - 1;
+          }
+
+          handler(p, s, p2);
+        }
+
+        // Move the paragraph down
+        if (event.code === 'Period' && event.getModifierState('Control')) {
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target);
+          let p2;
+
+          if (p === revision.length - 1) {
+            p2 = 0;
+          } else {
+            p2 = p + 1;
+          }
+
+          handler(p, s, p2);
+        }
+      }
+    });
   }
 }
 class Controller {
@@ -521,7 +580,7 @@ class Controller {
     this.view.bindDeleteVariant(this.handleDeleteVariant);
     this.view.bindChooseBest(this.handleChooseBest);
     this.view.bindMoveSentence(this.handleMoveSentence, this.model.revision);
-    this.view.bindMoveParagraph(this.handleMoveParagraph);
+    this.view.bindMoveParagraph(this.handleMoveParagraph, this.model.revision);
     this.view.bindChangeFocus(this.model.revision);
 
     // Display initial revision
@@ -532,6 +591,9 @@ class Controller {
     this.view.displayRevision(revision);
   };
 
+  // Handlers
+  // 'p' is paragraph index, 's' is sentence index
+  // 'p2' and 's2' are next position indexes
   handleAddSentence = (text, p, s) => {
     this.model.addSentence(text, p, s);
     this.view.focusOnElement(p, s);
@@ -572,8 +634,9 @@ class Controller {
     this.view.focusOnElement(p2, s2);
   };
 
-  handleMoveParagraph = (p, p2) => {
+  handleMoveParagraph = (p, s, p2) => {
     this.model.moveParagraph(p, p2);
+    this.view.focusOnElement(p2, s);
   };
 }
 
