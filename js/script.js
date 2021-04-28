@@ -99,7 +99,6 @@ class Model {
   // Move sentence by start and end indexes
   moveSentence(p, s, p2, s2) {
     let sentence = this.revision[p].splice(s, 1);
-    console.log(sentence);
     this.revision[p2].splice(s2, 0, sentence[0]);
 
     this.onRevisionChanged(this.revision);
@@ -127,10 +126,9 @@ class View {
     return element;
   }
 
-  removeElement(element) {
-    const previousElement = element.previousElementSibling;
+  removeElement(element, nextTarget) {
     element.remove();
-    previousElement.focus();
+    nextTarget.focus();
   }
 
   getElement(selector) {
@@ -152,6 +150,25 @@ class View {
       .querySelectorAll('.paragraph')
       [p].querySelectorAll('.sentence')
       [s].focus();
+  }
+
+  createInput(element, className) {
+    const input = this.createElement('input', className);
+    input.type = 'text';
+
+    if (className === 'variant-input') {
+      element.firstChild.before(input);
+    } else if (className === 'sentence-input') {
+      element.after(input);
+    }
+
+    input.focus();
+  }
+
+  validateInput(text) {
+    if (!/^\s*$/.test(text)) {
+      return text.trim().replace(/^./, (w) => w.toUpperCase());
+    }
   }
 
   displayRevision(revision) {
@@ -179,6 +196,41 @@ class View {
     }
   }
 
+  enterVariantsMode(p, s) {
+    const sentences = document.querySelectorAll('.sentence');
+    const sentence = document
+      .querySelectorAll('.paragraph')
+      [p].querySelectorAll('.sentence')[s];
+    const variants = sentence.querySelectorAll('.variant');
+
+    sentences.forEach((sentence) => {
+      sentence.removeAttribute('tabindex');
+      sentence.setAttribute('draggable', 'false');
+    });
+
+    variants.forEach((variant) => {
+      variant.classList.add('show');
+      variant.tabIndex = 0;
+    });
+
+    variants[0].focus();
+  }
+
+  focusAfterSentenceDeletion(revision, p, s) {
+    if (revision.length) {
+      if (revision[p]) {
+        if (!revision[p][s]) {
+          s -= 1;
+        }
+      } else {
+        p -= 1;
+        s = revision[p].length - 1;
+      }
+
+      this.focusOnElement(p, s);
+    }
+  }
+
   // Event Listeners
   // 'p' is the paragraph index, 's' is the sentence index
   // 'p2' and 's2' are the next position indexes
@@ -187,33 +239,36 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         // Create 'Add Sentence' Input
-        if (event.key === 'Enter' && !event.getModifierState('Control')) {
-          const sentenceInput = this.createElement('input', 'sentence-input');
-          sentenceInput.type = 'text';
-          event.target.after(sentenceInput);
-          sentenceInput.focus();
+        if (
+          event.key === 'Enter' &&
+          !event.getModifierState('Control') &&
+          !event.getModifierState('Alt') &&
+          !event.getModifierState('Shift')
+        ) {
+          this.createInput(event.target, 'sentence-input');
         }
       }
 
       if (event.target.className === 'sentence-input') {
+        const nextTarget = event.target.previousElementSibling;
+
         // Create new sentence
         if (event.key === 'Enter') {
           let text = event.target.value;
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
 
-          // If input text is not empty or filled with spaces
-          if (!/^\s*$/.test(text)) {
-            text = text.trim().replace(/^./, (w) => w.toUpperCase());
+          const validText = this.validateInput(text);
 
-            handler(text, p, s);
+          if (validText) {
+            handler(validText, p, s);
           } else {
-            this.removeElement(event.target);
+            this.removeElement(event.target, nextTarget);
           }
         }
 
         if (event.key === 'Escape') {
-          this.removeElement(event.target);
+          this.removeElement(event.target, nextTarget);
         }
       }
     });
@@ -232,25 +287,15 @@ class View {
     });
   }
 
-  focusAfterSentenceDeletion(revision, p, s) {
-    if (revision.length) {
-      if (revision[p]) {
-        if (!revision[p][s]) {
-          s -= 1;
-        }
-      } else {
-        p -= 1;
-        s = revision[p].length - 1;
-      }
-
-      this.focusOnElement(p, s);
-    }
-  }
-
   bindSplitParagraph(handler, revision) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
-        if (event.key === 'Enter' && event.getModifierState('Control')) {
+        if (
+          event.key === 'Enter' &&
+          event.getModifierState('Control') &&
+          !event.getModifierState('Alt') &&
+          !event.getModifierState('Shift')
+        ) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
 
@@ -278,7 +323,45 @@ class View {
   }
 
   bindAddVariant(handler) {
-    // handler(text, p, s);
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.className === 'sentence') {
+        if (
+          event.key === 'Enter' &&
+          event.getModifierState('Shift') &&
+          !event.getModifierState('Control') &&
+          !event.getModifierState('Alt')
+        ) {
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target);
+
+          this.enterVariantsMode(p, s);
+          this.createInput(event.target, 'variant-input');
+        }
+      }
+
+      if (event.target.className === 'variant-input') {
+        const nextTarget = event.target.nextElementSibling;
+
+        // Create new variant
+        if (event.key === 'Enter') {
+          let text = event.target.value;
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target.closest('.sentence'));
+
+          const validText = this.validateInput(text);
+
+          if (validText) {
+            handler(validText, p, s);
+          } else {
+            this.removeElement(event.target, nextTarget);
+          }
+        }
+
+        if (event.key === 'Escape') {
+          this.removeElement(event.target, nextTarget);
+        }
+      }
+    });
   }
 
   bindDeleteVariant(handler) {
@@ -619,6 +702,7 @@ class Controller {
 
   handleAddVariant = (text, p, s) => {
     this.model.addVariant(text, p, s);
+    this.view.enterVariantsMode(p, s);
   };
 
   handleDeleteVariant = (p, s, v) => {
