@@ -1,38 +1,15 @@
 class Model {
   constructor() {
-    this.revision = [
-      [
-        [
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-          'Loremka ipsumka dolorka sitka ametka.',
-        ],
-        [
-          'Morbi cursus aliquam eros, vel cursus ligula hendrerit vitae.',
-          'Morbinka cursuska aliquamka roska, velka cursuska ligualka.',
-        ],
-        [
-          'Etiam imperdiet vitae nisl sed volutpat.',
-          'Etiamka imperdietka vitaenka nislanka sedanka volutatka.',
-        ],
-      ],
-      [
-        ['Quisque tristique tellus quis blandit rhoncus.'],
-        ['Morbi fringilla imperdiet orci.', 'Praesent id dictum nunc.'],
-        [
-          'Sed sit amet ornare nunc.',
-          'Sedka sitka ametka ornanertka.',
-          'Amenka ornarka nunancunka.',
-        ],
-        ['Vestibulum quis leo mollis, commodo turpis et, porta tortor.'],
-        [
-          'Vestibulum eget vehicula tellus, vel congue sapien. Etiam non vulputate purus.',
-        ],
-      ],
-    ];
+    this.revision = JSON.parse(localStorage.getItem('Revisio')) || [];
   }
 
   bindRevisionChanged(callback) {
     this.onRevisionChanged = callback;
+  }
+
+  _commit(revision) {
+    this.onRevisionChanged(revision);
+    localStorage.setItem('Revisio', JSON.stringify(revision));
   }
 
   bindSentenceDeleted(callback) {
@@ -47,14 +24,14 @@ class Model {
   addSentence(text, p, s) {
     this.revision[p].splice(s, 0, [text]);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Delete sentence
   deleteSentence(p, s) {
     this.revision[p].splice(s, 1);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
     this.onSentenceDeleted(this.revision, p, s);
   }
 
@@ -63,7 +40,7 @@ class Model {
     let part = this.revision[p].splice(s + 1);
     this.revision.splice(p + 1, 0, part);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Combine paragraph with next paragraph
@@ -71,21 +48,21 @@ class Model {
     let combined = this.revision[p].concat(this.revision[p + 1]);
     this.revision.splice(p, 2, combined);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Add sentence variant
   addVariant(text, p, s) {
     this.revision[p][s].unshift(text);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Delete sentence variant
   deleteVariant(p, s, v) {
     this.revision[p][s].splice(v, 1);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Choose best sentence variant
@@ -93,7 +70,7 @@ class Model {
     let best = this.revision[p][s].splice(v, 1);
     this.revision[p][s].unshift(best[0]);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Move sentence by start and end indexes
@@ -101,7 +78,7 @@ class Model {
     let sentence = this.revision[p].splice(s, 1);
     this.revision[p2].splice(s2, 0, sentence[0]);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
   }
 
   // Move paragraph by start and end indexes
@@ -109,7 +86,36 @@ class Model {
     let paragraph = this.revision.splice(p, 1);
     this.revision.splice(p2, 0, paragraph[0]);
 
-    this.onRevisionChanged(this.revision);
+    this._commit(this.revision);
+  }
+
+  tokenizeText() {
+    var text = document.querySelector('textarea').value;
+
+    // trim spaces
+    text = text.replace(/^\s+|\s+$/gm, '\n');
+
+    // split into paragraphs
+    var paragraphs = text.split(/\n/);
+
+    // remove empty paragraphs
+    paragraphs = paragraphs.filter((p) => p !== '');
+
+    // remove extra spaces
+    paragraphs = paragraphs.map((p) => (p = p.replace(/\s+/g, ' ')));
+
+    // split into sentences
+    var intoSentences = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
+    this.revision = paragraphs.map((p) => p.split(intoSentences));
+
+    // put sentences into arrays
+    for (var p = 0; p < this.revision.length; p++) {
+      for (var s = 0; s < this.revision[p].length; s++) {
+        this.revision[p][s] = [this.revision[p][s]];
+      }
+    }
+
+    this._commit(this.revision);
   }
 }
 
@@ -195,6 +201,25 @@ class View {
         }
       }
     }
+  }
+
+  previewRevision(revision) {
+    var sentencesArray = [];
+    var paragraphsArray = [];
+
+    // Filter best sentences
+    for (var p = 0; p < revision.length; p++) {
+      sentencesArray.push([]);
+      for (var s = 0; s < revision[p].length; s++) {
+        sentencesArray[p].push(revision[p][s][0]);
+      }
+    }
+
+    for (var p = 0; p < sentencesArray.length; p++) {
+      paragraphsArray.push(sentencesArray[p].join(' '));
+    }
+
+    document.querySelector('textarea').value = paragraphsArray.join('\n\n');
   }
 
   enterVariantsMode(p, s) {
@@ -781,6 +806,7 @@ class Controller {
 
   onRevisionChanged = (revision) => {
     this.view.displayRevision(revision);
+    this.view.previewRevision(revision);
   };
 
   // Handlers
