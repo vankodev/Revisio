@@ -377,11 +377,36 @@ class View {
   }
 
   bindDeleteVariant(handler) {
-    // handler(p, s, v);
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.classList.contains('variant')) {
+        if (event.code === 'Delete') {
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target.closest('.sentence'));
+          const v = this.getElementIndex(event.target);
+          const variants = event.target.parentNode.querySelectorAll('.variant');
+
+          if (variants.length > 1) {
+            handler(p, s, v);
+            this.enterVariantsMode(p, s);
+          }
+        }
+      }
+    });
   }
 
   bindChooseBest(handler) {
-    // handler(p, s, v);
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.classList.contains('variant')) {
+        if (event.code === 'Space') {
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target.closest('.sentence'));
+          const v = this.getElementIndex(event.target);
+
+          handler(p, s, v);
+          this.enterVariantsMode(p, s);
+        }
+      }
+    });
   }
 
   bindMoveSentence(handler, revision) {
@@ -612,6 +637,24 @@ class View {
           s = revision[p].length - 1;
 
           this.focusOnElement(p, s);
+        }
+      }
+    });
+
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.classList.contains('variant')) {
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          const previous = event.target.previousElementSibling;
+
+          if (previous) previous.focus();
+        }
+
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          const next = event.target.nextElementSibling;
+
+          if (next) next.focus();
         }
       }
     });
