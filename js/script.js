@@ -734,7 +734,19 @@ class View {
       }
     });
   }
+
+  bindMaintainInputFocus() {
+    this.paragraphList.addEventListener('focusout', (event) => {
+      if (
+        event.target.classList.contains('sentence-input') ||
+        event.target.classList.contains('variant-input')
+      ) {
+        event.target.focus();
+      }
+    });
+  }
 }
+
 class Controller {
   constructor(model, view) {
     this.model = model;
@@ -761,6 +773,7 @@ class Controller {
     this.view.bindChangeFocus(this.model.revision);
     this.view.bindEnterVariantsMode();
     this.view.bindCloseVariantsMode();
+    this.view.bindMaintainInputFocus();
 
     // Display initial revision
     this.onRevisionChanged(this.model.revision);
