@@ -152,14 +152,15 @@ class View {
       [s].focus();
   }
 
-  createInput(element, className) {
+  createInput(sentence, className) {
     const input = this.createElement('input', className);
     input.type = 'text';
 
     if (className === 'variant-input') {
-      element.firstChild.before(input);
+      input.classList.add('show');
+      sentence.firstChild.before(input);
     } else if (className === 'sentence-input') {
-      element.after(input);
+      sentence.after(input);
     }
 
     input.focus();
@@ -202,14 +203,12 @@ class View {
       [p].querySelectorAll('.sentence')
       [s].querySelectorAll('.variant');
 
-    if (variants.length > 1) {
-      variants.forEach((variant) => {
-        variant.classList.add('show');
-        variant.tabIndex = 0;
-      });
+    variants.forEach((variant) => {
+      variant.classList.add('show');
+      variant.tabIndex = 0;
+    });
 
-      variants[0].focus();
-    }
+    variants[0].focus();
   }
 
   exitVariantsMode() {
@@ -344,7 +343,15 @@ class View {
         }
       }
 
-      if (event.target.className === 'variant-input') {
+      if (event.target.classList.contains('variant')) {
+        if (event.key === 'Enter') {
+          const sentence = event.target.closest('.sentence');
+
+          this.createInput(sentence, 'variant-input');
+        }
+      }
+
+      if (event.target.classList.contains('variant-input')) {
         const nextTarget = event.target.nextElementSibling;
 
         // Create new variant
