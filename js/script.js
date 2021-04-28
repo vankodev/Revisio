@@ -197,23 +197,28 @@ class View {
   }
 
   enterVariantsMode(p, s) {
-    const sentences = document.querySelectorAll('.sentence');
-    const sentence = document
+    const variants = document
       .querySelectorAll('.paragraph')
-      [p].querySelectorAll('.sentence')[s];
-    const variants = sentence.querySelectorAll('.variant');
+      [p].querySelectorAll('.sentence')
+      [s].querySelectorAll('.variant');
 
-    sentences.forEach((sentence) => {
-      sentence.removeAttribute('tabindex');
-      sentence.setAttribute('draggable', 'false');
-    });
+    if (variants.length > 1) {
+      variants.forEach((variant) => {
+        variant.classList.add('show');
+        variant.tabIndex = 0;
+      });
+
+      variants[0].focus();
+    }
+  }
+
+  exitVariantsMode() {
+    const variants = document.querySelectorAll('.show');
 
     variants.forEach((variant) => {
-      variant.classList.add('show');
-      variant.tabIndex = 0;
+      variant.classList.remove('show');
+      variant.removeAttribute('tabindex');
     });
-
-    variants[0].focus();
   }
 
   focusAfterSentenceDeletion(revision, p, s) {
@@ -640,6 +645,45 @@ class View {
       }
     });
   }
+
+  bindEnterVariantsMode() {
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.className === 'sentence') {
+        if (event.key === 'ArrowRight') {
+          const p = this.getElementIndex(event.target.closest('.paragraph'));
+          const s = this.getElementIndex(event.target);
+
+          this.enterVariantsMode(p, s);
+        }
+      }
+    });
+
+    this.paragraphList.addEventListener('dblclick', (event) => {
+      if (event.target.className === 'variant') {
+        const p = this.getElementIndex(event.target.closest('.paragraph'));
+        const s = this.getElementIndex(event.target.closest('.sentence'));
+
+        this.enterVariantsMode(p, s);
+      }
+    });
+  }
+
+  bindCloseVariantsMode() {
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.classList.contains('variant')) {
+        if (event.key === 'Escape' || event.key === 'ArrowLeft') {
+          this.exitVariantsMode();
+          event.target.closest('.sentence').focus();
+        }
+      }
+    });
+
+    document.addEventListener('focusin', (event) => {
+      if (!event.target.classList.contains('show')) {
+        this.exitVariantsMode();
+      }
+    });
+  }
 }
 class Controller {
   constructor(model, view) {
@@ -665,6 +709,8 @@ class Controller {
     this.view.bindMoveSentence(this.handleMoveSentence, this.model.revision);
     this.view.bindMoveParagraph(this.handleMoveParagraph, this.model.revision);
     this.view.bindChangeFocus(this.model.revision);
+    this.view.bindEnterVariantsMode();
+    this.view.bindCloseVariantsMode();
 
     // Display initial revision
     this.onRevisionChanged(this.model.revision);
