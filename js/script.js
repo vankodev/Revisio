@@ -16,6 +16,18 @@ class Model {
     this.onSentenceDeleted = callback;
   }
 
+  bindSentenceMoved(callback) {
+    this.onSentenceMoved = callback;
+  }
+
+  removeEmptyParagraphs(revision) {
+    for (var i = 0; i < revision.length; i++) {
+      if (revision[i].length === 0) {
+        revision.splice(i, 1);
+      }
+    }
+  }
+
   // Modifying the revision's data
   // 'p' is paragraph index, 's' is sentence index
   // 'p2' and 's2' are next position indexes
@@ -31,6 +43,7 @@ class Model {
   deleteSentence(p, s) {
     this.revision[p].splice(s, 1);
 
+    this.removeEmptyParagraphs(this.revision);
     this._commit(this.revision);
     this.onSentenceDeleted(this.revision, p, s);
   }
@@ -78,7 +91,16 @@ class Model {
     let sentence = this.revision[p].splice(s, 1);
     this.revision[p2].splice(s2, 0, sentence[0]);
 
+    const unfiltered = this.revision.length;
+    this.removeEmptyParagraphs(this.revision);
+
+    // Account for removed emtpy paragraphs
+    if (p < p2 && unfiltered !== this.revision.length) {
+      p2 -= 1;
+    }
+
     this._commit(this.revision);
+    this.onSentenceMoved(p2, s2);
   }
 
   // Move paragraph by start and end indexes
@@ -127,7 +149,7 @@ class View {
   createElement(tag, className) {
     const element = document.createElement(tag);
 
-    if (className) element.classList.add(className);
+    if (className) element.className = className;
 
     return element;
   }
@@ -195,7 +217,7 @@ class View {
         sentenceList.appendChild(sentence);
 
         for (var v = 0; v < revision[p][s].length; v++) {
-          const variant = this.createElement('p', 'variant');
+          const variant = this.createElement('p', 'variant noselect');
           variant.textContent = revision[p][s][v];
           sentence.appendChild(variant);
         }
@@ -513,14 +535,12 @@ class View {
         if (event.key === 'Home' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
-          let p2, s2;
+          let p2 = p;
+          let s2 = 0;
 
           // Move the sentence to the beginning of the revision
           if (event.getModifierState('Control')) {
             p2 = 0;
-            s2 = 0;
-          } else {
-            p2 = p;
             s2 = 0;
           }
 
@@ -531,15 +551,17 @@ class View {
         if (event.key === 'End' && event.getModifierState('Shift')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
-          let p2, s2;
+          let p2 = p;
+          let s2 = revision[p].length - 1;
 
           // Move the sentence to the end of the revision
           if (event.getModifierState('Control')) {
             p2 = revision.length - 1;
-            s2 = revision[p2].length;
-          } else {
-            p2 = p;
-            s2 = revision[p].length - 1;
+            if (p2 === p) {
+              s2 = revision[p2].length - 1;
+            } else {
+              s2 = revision[p2].length;
+            }
           }
 
           handler(p, s, p2, s2);
@@ -779,9 +801,10 @@ class Controller {
 
     // Explicit this binding
     this.model.bindRevisionChanged(this.onRevisionChanged);
+    this.model.bindSentenceDeleted(this.onSentenceDeleted);
+    this.model.bindSentenceMoved(this.onSentenceMoved);
     this.view.bindAddSentence(this.handleAddSentence);
     this.view.bindDeleteSentence(this.handleDeleteSentence);
-    this.model.bindSentenceDeleted(this.onSentenceDeleted);
     this.view.bindSplitParagraph(
       this.handleSplitParagraph,
       this.model.revision
@@ -809,6 +832,14 @@ class Controller {
     this.view.previewRevision(revision);
   };
 
+  onSentenceDeleted = (revision, p, s) => {
+    this.view.focusAfterSentenceDeletion(revision, p, s);
+  };
+
+  onSentenceMoved = (p, s) => {
+    this.view.focusOnElement(p, s);
+  };
+
   // Handlers
   // 'p' is paragraph index, 's' is sentence index
   // 'p2' and 's2' are next position indexes
@@ -819,10 +850,6 @@ class Controller {
 
   handleDeleteSentence = (p, s) => {
     this.model.deleteSentence(p, s);
-  };
-
-  onSentenceDeleted = (revision, p, s) => {
-    this.view.focusAfterSentenceDeletion(revision, p, s);
   };
 
   handleSplitParagraph = (p, s) => {
@@ -850,7 +877,6 @@ class Controller {
 
   handleMoveSentence = (p, s, p2, s2) => {
     this.model.moveSentence(p, s, p2, s2);
-    this.view.focusOnElement(p2, s2);
   };
 
   handleMoveParagraph = (p, s, p2) => {
