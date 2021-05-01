@@ -774,7 +774,7 @@ class View {
     });
 
     this.paragraphList.addEventListener('dblclick', (event) => {
-      if (event.target.className === 'variant') {
+      if (event.target.classList.contains('variant')) {
         const p = this.getElementIndex(event.target.closest('.paragraph'));
         const s = this.getElementIndex(event.target.closest('.sentence'));
 
