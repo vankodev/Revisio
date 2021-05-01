@@ -1,3 +1,8 @@
+/**
+ * @class Model
+ *
+ * Manages the data of the application.
+ */
 class Model {
   constructor() {
     this.revision = JSON.parse(localStorage.getItem('Revisio')) || [];
@@ -8,8 +13,8 @@ class Model {
   }
 
   _commit(revision) {
-    this.onRevisionChanged(revision);
     localStorage.setItem('Revisio', JSON.stringify(revision));
+    this.onRevisionChanged(revision);
   }
 
   bindSentenceDeleted(callback) {
@@ -45,7 +50,7 @@ class Model {
 
     this.removeEmptyParagraphs(this.revision);
     this._commit(this.revision);
-    this.onSentenceDeleted(this.revision, p, s);
+    this.onSentenceDeleted(p, s);
   }
 
   // Split paragraph in two paragraphs
@@ -141,9 +146,18 @@ class Model {
   }
 }
 
+/**
+ * @class View
+ *
+ * Visual representation of the model.
+ */
 class View {
   constructor() {
     this.paragraphList = this.getElement('.paragraph-list');
+  }
+
+  bindRevision(revision) {
+    this.revision = revision;
   }
 
   createElement(tag, className) {
@@ -267,15 +281,15 @@ class View {
     });
   }
 
-  focusAfterSentenceDeletion(revision, p, s) {
-    if (revision.length) {
-      if (revision[p]) {
-        if (!revision[p][s]) {
+  focusAfterSentenceDeletion(p, s) {
+    if (this.revision.length) {
+      if (this.revision[p]) {
+        if (!this.revision[p][s]) {
           s -= 1;
         }
       } else {
         p -= 1;
-        s = revision[p].length - 1;
+        s = this.revision[p].length - 1;
       }
 
       this.focusOnElement(p, s);
@@ -338,7 +352,7 @@ class View {
     });
   }
 
-  bindSplitParagraph(handler, revision) {
+  bindSplitParagraph(handler) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         if (
@@ -350,7 +364,7 @@ class View {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
 
-          if (s !== revision[p].length - 1) {
+          if (s !== this.revision[p].length - 1) {
             handler(p, s);
           }
         }
@@ -358,14 +372,14 @@ class View {
     });
   }
 
-  bindCombineParagraphs(handler, revision) {
+  bindCombineParagraphs(handler) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         if (event.key === 'Backspace' && event.getModifierState('Control')) {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
 
-          if (p !== revision.length - 1) {
+          if (p !== this.revision.length - 1) {
             handler(p, s);
           }
         }
@@ -456,7 +470,7 @@ class View {
     });
   }
 
-  bindMoveSentence(handler, revision) {
+  bindMoveSentence(handler) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         // Move the sentence up
@@ -470,10 +484,10 @@ class View {
             s2 = s - 1;
           } else if (p > 0) {
             p2 = p - 1;
-            s2 = revision[p2].length;
+            s2 = this.revision[p2].length;
           } else {
-            p2 = revision.length - 1;
-            s2 = revision[p2].length;
+            p2 = this.revision.length - 1;
+            s2 = this.revision[p2].length;
           }
 
           handler(p, s, p2, s2);
@@ -485,10 +499,10 @@ class View {
           const s = this.getElementIndex(event.target);
           let p2, s2;
 
-          if (s < revision[p].length - 1) {
+          if (s < this.revision[p].length - 1) {
             p2 = p;
             s2 = s + 1;
-          } else if (p < revision.length - 1) {
+          } else if (p < this.revision.length - 1) {
             p2 = p + 1;
             s2 = 0;
           } else {
@@ -507,7 +521,7 @@ class View {
           let p2;
 
           if (p === 0) {
-            p2 = revision.length - 1;
+            p2 = this.revision.length - 1;
           } else {
             p2 = p - 1;
           }
@@ -522,7 +536,7 @@ class View {
           const s2 = 0;
           let p2;
 
-          if (p === revision.length - 1) {
+          if (p === this.revision.length - 1) {
             p2 = 0;
           } else {
             p2 = p + 1;
@@ -552,15 +566,15 @@ class View {
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target);
           let p2 = p;
-          let s2 = revision[p].length - 1;
+          let s2 = this.revision[p].length - 1;
 
           // Move the sentence to the end of the revision
           if (event.getModifierState('Control')) {
-            p2 = revision.length - 1;
+            p2 = this.revision.length - 1;
             if (p2 === p) {
-              s2 = revision[p2].length - 1;
+              s2 = this.revision[p2].length - 1;
             } else {
-              s2 = revision[p2].length;
+              s2 = this.revision[p2].length;
             }
           }
 
@@ -570,7 +584,7 @@ class View {
     });
   }
 
-  bindChangeFocus(revision) {
+  bindChangeFocus() {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         const ignoreModfierKeys =
@@ -588,10 +602,10 @@ class View {
             s -= 1;
           } else if (p > 0) {
             p -= 1;
-            s = revision[p].length - 1;
+            s = this.revision[p].length - 1;
           } else {
-            p = revision.length - 1;
-            s = revision[p].length - 1;
+            p = this.revision.length - 1;
+            s = this.revision[p].length - 1;
           }
 
           this.focusOnElement(p, s);
@@ -603,9 +617,9 @@ class View {
           let p = this.getElementIndex(event.target.closest('.paragraph'));
           let s = this.getElementIndex(event.target);
 
-          if (s < revision[p].length - 1) {
+          if (s < this.revision[p].length - 1) {
             s += 1;
-          } else if (p < revision.length - 1) {
+          } else if (p < this.revision.length - 1) {
             p += 1;
             s = 0;
           } else {
@@ -625,7 +639,7 @@ class View {
           if (p > 0) {
             p -= 1;
           } else {
-            p = revision.length - 1;
+            p = this.revision.length - 1;
           }
           s = 0;
 
@@ -638,7 +652,7 @@ class View {
           let p = this.getElementIndex(event.target.closest('.paragraph'));
           let s = this.getElementIndex(event.target);
 
-          if (p < revision.length - 1) {
+          if (p < this.revision.length - 1) {
             p += 1;
           } else {
             p = 0;
@@ -679,9 +693,9 @@ class View {
 
           // Select the last sentence in the revision
           if (event.getModifierState('Control')) {
-            p = revision.length - 1;
+            p = this.revision.length - 1;
           }
-          s = revision[p].length - 1;
+          s = this.revision[p].length - 1;
 
           this.focusOnElement(p, s);
         }
@@ -707,7 +721,7 @@ class View {
     });
   }
 
-  bindMoveParagraph(handler, revision) {
+  bindMoveParagraph(handler) {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         // Move the paragraph up
@@ -717,7 +731,7 @@ class View {
           let p2;
 
           if (p === 0) {
-            p2 = revision.length - 1;
+            p2 = this.revision.length - 1;
           } else {
             p2 = p - 1;
           }
@@ -731,7 +745,7 @@ class View {
           const s = this.getElementIndex(event.target);
           let p2;
 
-          if (p === revision.length - 1) {
+          if (p === this.revision.length - 1) {
             p2 = 0;
           } else {
             p2 = p + 1;
@@ -794,6 +808,14 @@ class View {
   }
 }
 
+/**
+ * @class Controller
+ *
+ * Links the user input and the view output.
+ *
+ * @param model
+ * @param view
+ */
 class Controller {
   constructor(model, view) {
     this.model = model;
@@ -805,20 +827,14 @@ class Controller {
     this.model.bindSentenceMoved(this.onSentenceMoved);
     this.view.bindAddSentence(this.handleAddSentence);
     this.view.bindDeleteSentence(this.handleDeleteSentence);
-    this.view.bindSplitParagraph(
-      this.handleSplitParagraph,
-      this.model.revision
-    );
-    this.view.bindCombineParagraphs(
-      this.handleCombineParagraphs,
-      this.model.revision
-    );
+    this.view.bindSplitParagraph(this.handleSplitParagraph);
+    this.view.bindCombineParagraphs(this.handleCombineParagraphs);
     this.view.bindAddVariant(this.handleAddVariant);
     this.view.bindDeleteVariant(this.handleDeleteVariant);
     this.view.bindChooseBest(this.handleChooseBest);
-    this.view.bindMoveSentence(this.handleMoveSentence, this.model.revision);
-    this.view.bindMoveParagraph(this.handleMoveParagraph, this.model.revision);
-    this.view.bindChangeFocus(this.model.revision);
+    this.view.bindMoveSentence(this.handleMoveSentence);
+    this.view.bindMoveParagraph(this.handleMoveParagraph);
+    this.view.bindChangeFocus();
     this.view.bindEnterVariantsMode();
     this.view.bindCloseVariantsMode();
     this.view.bindMaintainInputFocus();
@@ -828,12 +844,13 @@ class Controller {
   }
 
   onRevisionChanged = (revision) => {
+    this.view.bindRevision(revision);
     this.view.displayRevision(revision);
     this.view.previewRevision(revision);
   };
 
-  onSentenceDeleted = (revision, p, s) => {
-    this.view.focusAfterSentenceDeletion(revision, p, s);
+  onSentenceDeleted = (p, s) => {
+    this.view.focusAfterSentenceDeletion(p, s);
   };
 
   onSentenceMoved = (p, s) => {
