@@ -153,7 +153,7 @@ class Model {
  */
 class View {
   constructor() {
-    this.paragraphList = this.getElement('.paragraph-list');
+    this.paragraphList = document.querySelector('.paragraph-list');
   }
 
   bindRevision(revision) {
@@ -171,12 +171,6 @@ class View {
   removeElement(element, nextTarget) {
     element.remove();
     nextTarget.focus();
-  }
-
-  getElement(selector) {
-    const element = document.querySelector(selector);
-
-    return element;
   }
 
   getElementIndex(element) {
@@ -459,6 +453,7 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.classList.contains('variant')) {
         if (event.code === 'Space') {
+          event.preventDefault();
           const p = this.getElementIndex(event.target.closest('.paragraph'));
           const s = this.getElementIndex(event.target.closest('.sentence'));
           const v = this.getElementIndex(event.target);
@@ -716,6 +711,15 @@ class View {
           const next = event.target.nextElementSibling;
 
           if (next) next.focus();
+        }
+
+        if (
+          event.key === 'PageUp' ||
+          event.key === 'PageDown' ||
+          event.key === 'Home' ||
+          event.key === 'End'
+        ) {
+          event.preventDefault();
         }
       }
     });
