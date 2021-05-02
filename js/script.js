@@ -33,6 +33,15 @@ class Model {
     }
   }
 
+  clearData() {
+    if (confirm('Confirm to DELETE the revision!')) {
+      this.revision = [];
+      this._commit(this.revision);
+    } else {
+      return;
+    }
+  }
+
   // Modifying the revision's data
   // 'p' is paragraph index, 's' is sentence index
   // 'p2' and 's2' are next position indexes
@@ -167,6 +176,11 @@ class View {
 
   bindRevision(revision) {
     this.revision = revision;
+  }
+
+  copyToClipboard() {
+    document.querySelector('textarea').select();
+    document.execCommand('copy');
   }
 
   createElement(tag, className) {
