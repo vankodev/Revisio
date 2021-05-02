@@ -161,6 +161,8 @@ class Model {
 class View {
   constructor() {
     this.paragraphList = document.querySelector('.paragraph-list');
+
+    this._p, this._s, this._p2, this._s2;
   }
 
   bindRevision(revision) {
@@ -335,9 +337,63 @@ class View {
     }
   }
 
+  getDragAfterElement(paragraph, y) {
+    const draggableElements = [
+      ...paragraph.querySelectorAll('.sentence:not(.dragging)'),
+    ];
+
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
+  }
+
   // Event Listeners
   // 'p' is the paragraph index, 's' is the sentence index
   // 'p2' and 's2' are the next position indexes
+
+  activateDragAndDrop(handle) {
+    const paragraphs = document.querySelectorAll('.paragraph');
+    const sentences = document.querySelectorAll('.sentence');
+
+    sentences.forEach((sentence) => {
+      sentence.addEventListener('dragstart', (e) => {
+        sentence.classList.add('dragging');
+
+        this._s = this.getElementIndex(sentence);
+        this._p = this.getElementIndex(sentence.closest('.paragraph'));
+      });
+
+      sentence.addEventListener('dragend', (e) => {
+        handle(this._p, this._s, this._p2, this._s2);
+      });
+    });
+
+    paragraphs.forEach((paragraph) => {
+      paragraph.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const sentence = document.querySelector('.dragging');
+        const afterElement = this.getDragAfterElement(paragraph, e.clientY);
+        this._p2 = this.getElementIndex(sentence.closest('.paragraph'));
+
+        if (afterElement == null) {
+          paragraph.firstChild.appendChild(sentence);
+          this._s2 = this.revision[this._p2].length - 1;
+        } else {
+          paragraph.firstChild.insertBefore(sentence, afterElement);
+          this._s2 = this.getElementIndex(afterElement) - 1;
+        }
+      });
+    });
+  }
 
   bindAddSentence(handler) {
     this.paragraphList.addEventListener('keydown', (event) => {
@@ -889,6 +945,7 @@ class Controller {
     this.view.bindRevision(revision);
     this.view.displayRevision(revision);
     this.view.previewRevision(revision);
+    this.view.activateDragAndDrop(this.handleDragAndDrop);
   };
 
   onSentenceDeleted = (p, s) => {
@@ -948,6 +1005,10 @@ class Controller {
   handleEditVariant = (text, p, s, v) => {
     this.model.editVariant(text, p, s, v);
     this.view.focusOnVariant(p, s, v);
+  };
+
+  handleDragAndDrop = (p, s, p2, s2) => {
+    this.model.moveSentence(p, s, p2, s2);
   };
 }
 
