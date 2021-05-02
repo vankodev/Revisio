@@ -175,9 +175,9 @@ class View {
     return element;
   }
 
-  removeElement(element, nextTarget) {
+  removeElement(element, focusElement) {
     element.remove();
-    nextTarget.focus();
+    focusElement.focus();
   }
 
   getElementIndex(element) {
@@ -201,7 +201,7 @@ class View {
     return [p, s, v];
   }
 
-  focusOnElement(p, s) {
+  focusOnSentence(p, s) {
     document
       .querySelectorAll('.paragraph')
       [p].querySelectorAll('.sentence')
@@ -219,20 +219,22 @@ class View {
       variant.tabIndex = 0;
     });
 
+    while (!variants[v]) v--;
     variants[v].focus();
   }
 
-  createInput(sentence, className) {
-    const input = this.createElement('input', className);
+  createSentenceInput(element) {
+    const input = this.createElement('input', 'sentence-input');
     input.type = 'text';
+    element.after(input);
+    input.focus();
+  }
 
-    if (className === 'variant-input') {
-      input.classList.add('show');
-      sentence.firstChild.before(input);
-    } else if (className === 'sentence-input') {
-      sentence.after(input);
-    }
-
+  createVariantInput(element) {
+    const input = this.createElement('input', 'variant-input');
+    input.type = 'text';
+    input.classList.add('show');
+    element.firstChild.before(input);
     input.focus();
   }
 
@@ -255,7 +257,7 @@ class View {
 
   validateInput(text) {
     if (!/^\s*$/.test(text)) {
-      return text.trim().replace(/^./, (w) => w.toUpperCase());
+      return text.trim().replace(/^./, (e) => e.toUpperCase());
     }
   }
 
@@ -303,21 +305,7 @@ class View {
     document.querySelector('textarea').value = paragraphsArray.join('\n\n');
   }
 
-  enterVariantsMode(p, s) {
-    const variants = document
-      .querySelectorAll('.paragraph')
-      [p].querySelectorAll('.sentence')
-      [s].querySelectorAll('.variant');
-
-    variants.forEach((variant) => {
-      variant.classList.add('show');
-      variant.tabIndex = 0;
-    });
-
-    variants[0].focus();
-  }
-
-  exitVariantsMode() {
+  hideVariants() {
     const variants = document.querySelectorAll('.show');
 
     variants.forEach((variant) => {
@@ -337,7 +325,7 @@ class View {
         s = this.revision[p].length - 1;
       }
 
-      this.focusOnElement(p, s);
+      this.focusOnSentence(p, s);
     }
   }
 
@@ -355,30 +343,27 @@ class View {
           !event.getModifierState('Alt') &&
           !event.getModifierState('Shift')
         ) {
-          this.createInput(event.target, 'sentence-input');
+          this.createSentenceInput(event.target);
         }
       }
 
       if (event.target.className === 'sentence-input') {
-        const nextTarget = event.target.previousElementSibling;
+        const focusElement = event.target.previousElementSibling;
 
         // Create new sentence
         if (event.key === 'Enter') {
-          let text = event.target.value;
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const text = this.validateInput(event.target.value);
+          const [p, s] = this.getSentenceIndexes(event.target);
 
-          const validText = this.validateInput(text);
-
-          if (validText) {
-            handler(validText, p, s);
+          if (text) {
+            handler(text, p, s);
           } else {
-            this.removeElement(event.target, nextTarget);
+            this.removeElement(event.target, focusElement);
           }
         }
 
         if (event.key === 'Escape') {
-          this.removeElement(event.target, nextTarget);
+          this.removeElement(event.target, focusElement);
         }
       }
     });
@@ -388,8 +373,7 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         if (event.key === 'Delete') {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
 
           handler(p, s);
         }
@@ -406,8 +390,7 @@ class View {
           !event.getModifierState('Alt') &&
           !event.getModifierState('Shift')
         ) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
 
           if (s !== this.revision[p].length - 1) {
             handler(p, s);
@@ -421,8 +404,7 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         if (event.key === 'Backspace' && event.getModifierState('Control')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
 
           if (p !== this.revision.length - 1) {
             handler(p, s);
@@ -441,42 +423,36 @@ class View {
           !event.getModifierState('Control') &&
           !event.getModifierState('Alt')
         ) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
 
-          this.enterVariantsMode(p, s);
-          this.createInput(event.target, 'variant-input');
+          this.focusOnVariant(p, s, 0);
+          this.createVariantInput(event.target, 'variant-input');
         }
       }
 
       if (event.target.classList.contains('variant')) {
         if (event.key === 'Enter') {
-          const sentence = event.target.closest('.sentence');
-
-          this.createInput(sentence, 'variant-input');
+          this.createVariantInput(event.target.parentNode, 'variant-input');
         }
       }
 
       if (event.target.classList.contains('variant-input')) {
-        const nextTarget = event.target.nextElementSibling;
+        const focusElement = event.target.nextElementSibling;
 
         // Create new variant
         if (event.key === 'Enter') {
-          let text = event.target.value;
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target.closest('.sentence'));
+          const text = this.validateInput(event.target.value);
+          const [p, s] = this.getVariantIndexes(event.target);
 
-          const validText = this.validateInput(text);
-
-          if (validText) {
-            handler(validText, p, s);
+          if (text) {
+            handler(text, p, s);
           } else {
-            this.removeElement(event.target, nextTarget);
+            this.removeElement(event.target, focusElement);
           }
         }
 
         if (event.key === 'Escape') {
-          this.removeElement(event.target, nextTarget);
+          this.removeElement(event.target, focusElement);
         }
       }
     });
@@ -486,15 +462,10 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.classList.contains('variant')) {
         if (event.code === 'Delete') {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target.closest('.sentence'));
-          const v = this.getElementIndex(event.target);
+          const [p, s, v] = this.getVariantIndexes(event.target);
           const variants = event.target.parentNode.querySelectorAll('.variant');
 
-          if (variants.length > 1) {
-            handler(p, s, v);
-            this.enterVariantsMode(p, s);
-          }
+          if (variants.length > 1) handler(p, s, v);
         }
       }
     });
@@ -505,12 +476,9 @@ class View {
       if (event.target.classList.contains('variant')) {
         if (event.code === 'Space') {
           event.preventDefault();
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target.closest('.sentence'));
-          const v = this.getElementIndex(event.target);
+          const [p, s, v] = this.getVariantIndexes(event.target);
 
           handler(p, s, v);
-          this.enterVariantsMode(p, s);
         }
       }
     });
@@ -521,8 +489,7 @@ class View {
       if (event.target.className === 'sentence') {
         // Move the sentence up
         if (event.key === 'ArrowUp' && event.getModifierState('Shift')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           let p2, s2;
 
           if (s > 0) {
@@ -541,8 +508,7 @@ class View {
 
         // Move the sentence down
         if (event.key === 'ArrowDown' && event.getModifierState('Shift')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           let p2, s2;
 
           if (s < this.revision[p].length - 1) {
@@ -561,8 +527,7 @@ class View {
 
         // Move the sentence to the previous paragraph
         if (event.key === 'PageUp' && event.getModifierState('Shift')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           const s2 = 0;
           let p2;
 
@@ -577,8 +542,7 @@ class View {
 
         // Move the sentence to the next paragraph
         if (event.key === 'PageDown' && event.getModifierState('Shift')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           const s2 = 0;
           let p2;
 
@@ -593,8 +557,7 @@ class View {
 
         // Move the sentence to the beginning of the paragraph
         if (event.key === 'Home' && event.getModifierState('Shift')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           let p2 = p;
           let s2 = 0;
 
@@ -609,8 +572,7 @@ class View {
 
         // Move the sentence to the end of the paragraph
         if (event.key === 'End' && event.getModifierState('Shift')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           let p2 = p;
           let s2 = this.revision[p].length - 1;
 
@@ -641,8 +603,7 @@ class View {
         // Select the previous sentence
         if (event.key === 'ArrowUp' && ignoreModfierKeys) {
           event.preventDefault();
-          let p = this.getElementIndex(event.target.closest('.paragraph'));
-          let s = this.getElementIndex(event.target);
+          let [p, s] = this.getSentenceIndexes(event.target);
 
           if (s > 0) {
             s -= 1;
@@ -654,14 +615,13 @@ class View {
             s = this.revision[p].length - 1;
           }
 
-          this.focusOnElement(p, s);
+          this.focusOnSentence(p, s);
         }
 
         // Select the next sentence
         if (event.key === 'ArrowDown' && ignoreModfierKeys) {
           event.preventDefault();
-          let p = this.getElementIndex(event.target.closest('.paragraph'));
-          let s = this.getElementIndex(event.target);
+          let [p, s] = this.getSentenceIndexes(event.target);
 
           if (s < this.revision[p].length - 1) {
             s += 1;
@@ -673,14 +633,13 @@ class View {
             s = 0;
           }
 
-          this.focusOnElement(p, s);
+          this.focusOnSentence(p, s);
         }
 
         // Select the first sentence of the previous paragraph
         if (event.key === 'PageUp' && ignoreModfierKeys) {
           event.preventDefault();
-          let p = this.getElementIndex(event.target.closest('.paragraph'));
-          let s = this.getElementIndex(event.target);
+          let [p, s] = this.getSentenceIndexes(event.target);
 
           if (p > 0) {
             p -= 1;
@@ -689,14 +648,13 @@ class View {
           }
           s = 0;
 
-          this.focusOnElement(p, s);
+          this.focusOnSentence(p, s);
         }
 
         // Select the first sentence of the next paragraph
         if (event.key === 'PageDown' && ignoreModfierKeys) {
           event.preventDefault();
-          let p = this.getElementIndex(event.target.closest('.paragraph'));
-          let s = this.getElementIndex(event.target);
+          let [p, s] = this.getSentenceIndexes(event.target);
 
           if (p < this.revision.length - 1) {
             p += 1;
@@ -705,7 +663,7 @@ class View {
           }
           s = 0;
 
-          this.focusOnElement(p, s);
+          this.focusOnSentence(p, s);
         }
 
         // Select the first sentence in the paragraph
@@ -715,8 +673,7 @@ class View {
           !event.getModifierState('Alt')
         ) {
           event.preventDefault();
-          let p = this.getElementIndex(event.target.closest('.paragraph'));
-          let s = this.getElementIndex(event.target);
+          let [p, s] = this.getSentenceIndexes(event.target);
 
           // Select the first sentence in the revision
           if (event.getModifierState('Control')) {
@@ -724,7 +681,7 @@ class View {
           }
           s = 0;
 
-          this.focusOnElement(p, s);
+          this.focusOnSentence(p, s);
         }
 
         // Select the last sentence in the paragraph
@@ -734,8 +691,7 @@ class View {
           !event.getModifierState('Alt')
         ) {
           event.preventDefault();
-          let p = this.getElementIndex(event.target.closest('.paragraph'));
-          let s = this.getElementIndex(event.target);
+          let [p, s] = this.getSentenceIndexes(event.target);
 
           // Select the last sentence in the revision
           if (event.getModifierState('Control')) {
@@ -743,7 +699,7 @@ class View {
           }
           s = this.revision[p].length - 1;
 
-          this.focusOnElement(p, s);
+          this.focusOnSentence(p, s);
         }
       }
     });
@@ -781,8 +737,7 @@ class View {
       if (event.target.className === 'sentence') {
         // Move the paragraph up
         if (event.code === 'Comma' && event.getModifierState('Control')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           let p2;
 
           if (p === 0) {
@@ -796,8 +751,7 @@ class View {
 
         // Move the paragraph down
         if (event.code === 'Period' && event.getModifierState('Control')) {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
           let p2;
 
           if (p === this.revision.length - 1) {
@@ -816,20 +770,18 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.className === 'sentence') {
         if (event.key === 'ArrowRight') {
-          const p = this.getElementIndex(event.target.closest('.paragraph'));
-          const s = this.getElementIndex(event.target);
+          const [p, s] = this.getSentenceIndexes(event.target);
 
-          this.enterVariantsMode(p, s);
+          this.focusOnVariant(p, s, 0);
         }
       }
     });
 
     this.paragraphList.addEventListener('dblclick', (event) => {
       if (event.target.classList.contains('variant')) {
-        const p = this.getElementIndex(event.target.closest('.paragraph'));
-        const s = this.getElementIndex(event.target.closest('.sentence'));
+        const [p, s] = this.getVariantIndexes(event.target);
 
-        this.enterVariantsMode(p, s);
+        this.focusOnVariant(p, s, 0);
       }
     });
   }
@@ -838,7 +790,7 @@ class View {
     this.paragraphList.addEventListener('keydown', (event) => {
       if (event.target.classList.contains('variant')) {
         if (event.key === 'Escape' || event.key === 'ArrowLeft') {
-          this.exitVariantsMode();
+          this.hideVariants();
           event.target.closest('.sentence').focus();
         }
       }
@@ -846,7 +798,7 @@ class View {
 
     document.addEventListener('focusin', (event) => {
       if (!event.target.classList.contains('show')) {
-        this.exitVariantsMode();
+        this.hideVariants();
       }
     });
   }
@@ -874,10 +826,10 @@ class View {
       if (event.target.classList.contains('edit-input')) {
         if (event.key === 'Enter') {
           const text = this.validateInput(event.target.value);
-          const position = this.getVariantIndexes(event.target);
+          const [p, s, v] = this.getVariantIndexes(event.target);
 
           if (text) {
-            handle(text, ...position);
+            handle(text, p, s, v);
           } else {
             this.removeEditInput(event.target);
           }
@@ -938,7 +890,7 @@ class Controller {
   };
 
   onSentenceMoved = (p, s) => {
-    this.view.focusOnElement(p, s);
+    this.view.focusOnSentence(p, s);
   };
 
   // Handlers
@@ -946,7 +898,7 @@ class Controller {
   // 'p2' and 's2' are next position indexes
   handleAddSentence = (text, p, s) => {
     this.model.addSentence(text, p, s);
-    this.view.focusOnElement(p, s);
+    this.view.focusOnSentence(p, s);
   };
 
   handleDeleteSentence = (p, s) => {
@@ -955,25 +907,27 @@ class Controller {
 
   handleSplitParagraph = (p, s) => {
     this.model.splitParagraph(p, s);
-    this.view.focusOnElement(p, s);
+    this.view.focusOnSentence(p, s);
   };
 
   handleCombineParagraphs = (p, s) => {
     this.model.combineParagraphs(p);
-    this.view.focusOnElement(p, s);
+    this.view.focusOnSentence(p, s);
   };
 
   handleAddVariant = (text, p, s) => {
     this.model.addVariant(text, p, s);
-    this.view.enterVariantsMode(p, s);
+    this.view.focusOnVariant(p, s, 0);
   };
 
   handleDeleteVariant = (p, s, v) => {
     this.model.deleteVariant(p, s, v);
+    this.view.focusOnVariant(p, s, v);
   };
 
   handleChooseBest = (p, s, v) => {
     this.model.chooseBest(p, s, v);
+    this.view.focusOnVariant(p, s, 0);
   };
 
   handleMoveSentence = (p, s, p2, s2) => {
@@ -982,7 +936,7 @@ class Controller {
 
   handleMoveParagraph = (p, s, p2) => {
     this.model.moveParagraph(p, p2);
-    this.view.focusOnElement(p2, s);
+    this.view.focusOnSentence(p2, s);
   };
 
   handleEditVariant = (text, p, s, v) => {
