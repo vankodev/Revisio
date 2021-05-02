@@ -116,6 +116,13 @@ class Model {
     this._commit(this.revision);
   }
 
+  // Edit sentence variant
+  editVariant(text, p, s, v) {
+    this.revision[p][s].splice(v, 1, text);
+
+    this._commit(this.revision);
+  }
+
   tokenizeText() {
     var text = document.querySelector('textarea').value;
 
@@ -181,11 +188,38 @@ class View {
     return index;
   }
 
+  getSentenceIndexes(element) {
+    const p = this.getElementIndex(element.closest('.paragraph'));
+    const s = this.getElementIndex(element);
+    return [p, s];
+  }
+
+  getVariantIndexes(element) {
+    const p = this.getElementIndex(element.closest('.paragraph'));
+    const s = this.getElementIndex(element.closest('.sentence'));
+    const v = this.getElementIndex(element);
+    return [p, s, v];
+  }
+
   focusOnElement(p, s) {
     document
       .querySelectorAll('.paragraph')
       [p].querySelectorAll('.sentence')
       [s].focus();
+  }
+
+  focusOnVariant(p, s, v) {
+    const variants = document
+      .querySelectorAll('.paragraph')
+      [p].querySelectorAll('.sentence')
+      [s].querySelectorAll('.variant');
+
+    variants.forEach((variant) => {
+      variant.classList.add('show');
+      variant.tabIndex = 0;
+    });
+
+    variants[v].focus();
   }
 
   createInput(sentence, className) {
@@ -200,6 +234,23 @@ class View {
     }
 
     input.focus();
+  }
+
+  createEditInput(element) {
+    const input = this.createElement('input', 'edit-input');
+    input.type = 'text';
+    input.value = element.textContent;
+    input.classList.add('show');
+    element.classList.remove('show');
+    element.before(input);
+    input.focus();
+  }
+
+  removeEditInput(element) {
+    const focusElement = element.nextElementSibling;
+    element.remove();
+    focusElement.classList.add('show');
+    focusElement.focus();
   }
 
   validateInput(text) {
@@ -804,9 +855,37 @@ class View {
     this.paragraphList.addEventListener('focusout', (event) => {
       if (
         event.target.classList.contains('sentence-input') ||
-        event.target.classList.contains('variant-input')
+        event.target.classList.contains('variant-input') ||
+        event.target.classList.contains('edit-input')
       ) {
         event.target.focus();
+      }
+    });
+  }
+
+  bindEditVariant(handle) {
+    this.paragraphList.addEventListener('keydown', (event) => {
+      if (event.target.classList.contains('variant')) {
+        if (event.key === 'F2') {
+          this.createEditInput(event.target);
+        }
+      }
+
+      if (event.target.classList.contains('edit-input')) {
+        if (event.key === 'Enter') {
+          const text = this.validateInput(event.target.value);
+          const position = this.getVariantIndexes(event.target);
+
+          if (text) {
+            handle(text, ...position);
+          } else {
+            this.removeEditInput(event.target);
+          }
+        }
+
+        if (event.key === 'Escape') {
+          this.removeEditInput(event.target);
+        }
       }
     });
   }
@@ -842,6 +921,7 @@ class Controller {
     this.view.bindEnterVariantsMode();
     this.view.bindCloseVariantsMode();
     this.view.bindMaintainInputFocus();
+    this.view.bindEditVariant(this.handleEditVariant);
 
     // Display initial revision
     this.onRevisionChanged(this.model.revision);
@@ -903,6 +983,11 @@ class Controller {
   handleMoveParagraph = (p, s, p2) => {
     this.model.moveParagraph(p, p2);
     this.view.focusOnElement(p2, s);
+  };
+
+  handleEditVariant = (text, p, s, v) => {
+    this.model.editVariant(text, p, s, v);
+    this.view.focusOnVariant(p, s, v);
   };
 }
 
