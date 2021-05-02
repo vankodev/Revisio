@@ -220,6 +220,8 @@ class View {
     });
 
     while (!variants[v]) v--;
+
+    variants[v].parentNode.setAttribute('draggable', 'false');
     variants[v].focus();
   }
 
@@ -308,10 +310,14 @@ class View {
   hideVariants() {
     const variants = document.querySelectorAll('.show');
 
-    variants.forEach((variant) => {
-      variant.classList.remove('show');
-      variant.removeAttribute('tabindex');
-    });
+    if (variants[0]) {
+      variants[0].parentNode.setAttribute('draggable', 'true');
+
+      variants.forEach((variant) => {
+        variant.classList.remove('show');
+        variant.removeAttribute('tabindex');
+      });
+    }
   }
 
   focusAfterSentenceDeletion(p, s) {
