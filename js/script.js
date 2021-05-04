@@ -17,6 +17,10 @@ class Model {
     this.onRevisionChanged(revision);
   }
 
+  bindTextTokenized(callback) {
+    this.onTextTokenized = callback;
+  }
+
   bindSentenceDeleted(callback) {
     this.onSentenceDeleted = callback;
   }
@@ -159,6 +163,7 @@ class Model {
     }
 
     this._commit(this.revision);
+    this.onTextTokenized();
   }
 }
 
@@ -936,6 +941,7 @@ class Controller {
     this.model.bindRevisionChanged(this.onRevisionChanged);
     this.model.bindSentenceDeleted(this.onSentenceDeleted);
     this.model.bindSentenceMoved(this.onSentenceMoved);
+    this.model.bindTextTokenized(this.onTextTokenized);
     this.view.bindAddSentence(this.handleAddSentence);
     this.view.bindDeleteSentence(this.handleDeleteSentence);
     this.view.bindSplitParagraph(this.handleSplitParagraph);
@@ -968,6 +974,10 @@ class Controller {
 
   onSentenceMoved = (p, s) => {
     this.view.focusOnSentence(p, s);
+  };
+
+  onTextTokenized = () => {
+    this.view.focusOnSentence(0, 0);
   };
 
   // Handlers
