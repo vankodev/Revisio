@@ -21,11 +21,12 @@
       <div class="menu">
         <img class="logo" src="img/logo.svg" />
         <ul class="menu-list noselect">
-          <li><a class="btn bg-light" href="javascript:app.model.tokenizeText();">Tokenize</a></li>
-          <li><a class="btn bg-light" href="javascript:app.model.clearData();">Clear</a></li>
-          <li><a class="btn bg-light" href="javascript:app.view.copyToClipboard();">Copy</a></li>
-          <li><a class="btn bg-light" href="javascript:showModal('about');">About</a></li>
-          <li><a class="btn bg-light" href="javascript:showModal('help');">Help</a></li>
+          <button class="btn bg-light" onclick="app.model.tokenizeText()">Tokenize</button>
+          <button class="btn bg-light" onclick="app.view.copyToClipboard()">Copy</button>
+          <button class="btn bg-light" onclick="app.model.clearData()">Clear</button>
+          <button class="btn bg-light" onclick="app.view.startTutorial()">Tutorial</button>
+          <button class="btn bg-light" onclick="showModal('help')">Shortcuts</button>
+          <button class="btn bg-light" onclick="showModal('about')">About</button>
         </ul>
       </div>
     </div>
@@ -41,7 +42,7 @@
         </div>
 
         <div class="editor-preview bg-light">
-          <textarea placeholder="Put your notes here and tokenize them into sentence-contents."></textarea>
+          <textarea placeholder="Put your notes here and tokenize them into sentences."></textarea>
         </div>
       </div>
     </div>
@@ -52,18 +53,12 @@
       <span id="close-about" class="close">&times;</span>
       <div class="flow-content">
         <h1>About Revisio</h1>
-        <p>This app is not like a typical text editor. It is for revisions of raw written material for articles, essays,
-          and even chapters or sections of text. Its purpose is to automate the boring copying and pasting of sentence-contents
-          that you do in a typical text editor to sort them in the text. The app also allows you to rewrite each sentence-content
-          and keeps a history of different versions of the sentence-contents, so you can choose the best ones. </p>
-        <h1>How it works</h1>
-        <ul>
-          <li>The app splits the text into sentence-contents that you can easily sort to achieve a nice flow for reading. </li>
-          <li>You can write new versions of every sentence-content and compare it with the original sentence-content to choose the better
-            one. </li>
-          <li>The app joins the sentence-contents in paragraphs for your convenience to read the revised text.</li>
-          <li>The app automatically saves your revision in the Local Storage of your browser.</li>
-        </ul>
+        <p>
+          Revisio is a web app for text revisions, but not like a typical text editor. Its purpose is to help you focus on creation rather than manipulation. It gives you a bird's eye view of your text so you can easily achieve good writing flow. It aids you in your change choices. And allows you to copy the revised text back to your main text editing program. 
+        </p>
+        <p>
+          The app is useful for sorting out the flow of the text by easily changing sentence positions. It helps you decide if your changes are better and worth keeping by keeping a history of them. The editing is done swiftly with keyboard shortcuts. The boring sorting manipulations of the text are automated. And the data is saved automatically in the cache of your browser.
+        </p>
       </div>
     </div>
   </div>
@@ -72,27 +67,58 @@
     <div class="modal-content bg-light">
       <span id="close-help" class="close">&times;</span>
       <div class="flow-content">
-        <h1>Instructions</h1>
-        <ol>
-          <li>Copy the raw text into the right panel and click the <strong>Tokenize</strong> button. The text is then
-            split into sentence-contents.</li>
-          <li>Use the mouse or <strong>Up</strong> and <strong>Down Arrow</strong> keys to select a sentence-content in the editor
-            panel.</li>
-          <li>Use the mouse to drag and drop or <strong>Alt+Up</strong> or <strong>Alt+Down</strong> keys to sort the
-            sentence-contents.</li>
-          <li>To insert a new sentence-content below the current one, press <strong>Alt+Enter</strong>. </li>
-          <li>To write a new version of a sentence-content, press <strong>Enter</strong> to go into <em>sentence-content editing
-              mode</em>. If there is only one version of the sentence-content, you will be prompted to write a new version. If
-            there are already two versions of the sentence-content, you can select the better one with the <strong>Enter</strong>
-            key. To edit a sentence-content version without writing a new version, double click with the mouse on it. Press the
-            <strong>Esc</strong> key to exit <em>sentence-content editing mode</em> and show only the better version of the
-            sentence-content. </li>
-          <li>To add a new paragraph divider, press <strong>Alt+P</strong>.</li>
-          <li>If you are happy with the revision, press the <strong>Copy</strong> button to copy the revised text from the
-            preview panel.</li>
-          <li>To clear the revision from the editor and the Local Storage of your browser, press the
-            <strong>Clean</strong> button. Be careful because this step cannot be undone.</li>
-        </ol>
+        <div class="shortcuts-container">
+          <div class="shortcuts flow-content">
+            <h1>Selection</h1>
+            <div>
+              <p>"UpArrow" — Go to Previous Sentence</p>
+              <p>"DownArrow" — Go to Next Sentence</p>
+              <p>"PageUp" — Go to Previous Paragraph</p>
+              <p>"PageDown" — Go to Next Paragraph</p>
+              <p>"Home" — Go to Beginning of Paragraph</p>
+              <p>"End" — Go to End of Paragraph </p>
+              <p>"Ctrl + Home" — Go to Beginning of Editor</p>
+              <p>"Ctrl + End" — Go to End of Editor </p>
+            </div>
+          </div>
+
+          <div class="shortcuts flow-content">
+            <h1>Movement</h1>
+            <div>
+              <p>"Shift + UpArrow" — Move Sentence Up</p>
+              <p>"Shift + DownArrow" — Move Sentence Down</p>
+              <p>"Shift + PageUp" — Move Sentence to Previous Paragraph</p>
+              <p>"Shift + PageDown" — Move Sentence to Next Paragraph</p>
+              <p>"Shift + Home" — Move Sentence to Top of Paragraph</p>
+              <p>"Shift + End" — Move Sentence to Bottom of Paragraph</p>
+              <p>"Ctrl + Shift + Home" — Move Sentence to Top of Revision</p>
+              <p>"Ctrl + Shift + End" — Move Sentence  to Bottom of Revision</p>
+            </div>
+          </div>
+        </div>
+        <div  class="shortcuts-container">
+          <div class="shortcuts flow-content">
+            <h1>Editing</h1>
+            <div>
+              <p>"RightArrow" — Show Sentence Variants</p>
+              <p>"LeftArrow" — Hide Sentence Variants</p>
+              <p>"Enter" — Add New Sentence / Variant</p>
+              <p>"Shift + Enter" — Add New Sentence Variant</p>
+              <p>"Delete" — Delete Sentence / Variant Permanently</p>
+              <p>"Space" — Choose Best Sentence Variant</p>
+            </div>
+          </div>
+
+          <div class="shortcuts flow-content">
+            <h1>Paragraphs</h1>
+            <div>
+              <p>"Ctrl + &#60" — Move Paragraph Up</p>
+              <p>"Ctrl + &#62" — Move Paragraph Down</p>
+              <p>"Ctrl + Enter" — Split Paragraph in Two Paragraphs</p>
+              <p>"Ctrl + Backspace" — Combine Paragraph with Next Paragraph</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

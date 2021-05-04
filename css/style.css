@@ -122,19 +122,19 @@ input {
   margin-left: 1rem;
 }
 
-.menu-list li {
-  display: inline-block;
-  margin-left: 1rem;
-}
-
 .btn {
+  cursor: pointer;
   color: var(--clr-neutral-700);
-  text-decoration: none;
+  margin-left: 0.8rem;
   padding: 0.25rem 0.75rem;
 }
 
 .btn:active {
   background-color: var(--clr-neutral-300);
+}
+
+.btn:focus {
+  outline: none;
 }
 
 /* Editor */
@@ -220,7 +220,7 @@ input {
 
 .modal-content {
   padding: 2rem;
-  max-width: 50rem;
+  max-width: 60rem;
   margin: 0 auto;
   position: relative;
 }
@@ -259,4 +259,12 @@ input {
   color: var(--clr-neutral-700);
   text-decoration: none;
   cursor: pointer;
+}
+
+.shortcuts-container {
+  display: flex;
+}
+
+.shortcuts {
+  width: 30rem;
 }
