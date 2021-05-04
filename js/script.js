@@ -37,15 +37,6 @@ class Model {
     }
   }
 
-  clearData() {
-    if (confirm('Confirm to DELETE the revision!')) {
-      this.revision = [];
-      this._commit(this.revision);
-    } else {
-      return;
-    }
-  }
-
   // Modifying the revision's data
   // 'p' is paragraph index, 's' is sentence index
   // 'p2' and 's2' are next position indexes
@@ -163,6 +154,11 @@ class Model {
     this._commit(this.revision);
     this.onTextTokenized();
   }
+
+  clearData() {
+    this.revision = [];
+    this._commit(this.revision);
+  }
 }
 
 /**
@@ -183,6 +179,10 @@ class View {
 
   bindTokenizationVerified(callback) {
     this.onTokenizationVerified = callback;
+  }
+
+  bindClearDataVerified(callback) {
+    this.onClearDataVerified = callback;
   }
 
   createElement(tag, className) {
@@ -391,6 +391,14 @@ class View {
   copyToClipboard() {
     document.querySelector('textarea').select();
     document.execCommand('copy');
+  }
+
+  verifyClearData() {
+    if (confirm('Confirm to permanently DELETE the revision!')) {
+      this.onClearDataVerified();
+    } else {
+      return;
+    }
   }
 
   startTutorial() {
@@ -973,6 +981,7 @@ class Controller {
     this.model.bindSentenceMoved(this.onSentenceMoved);
     this.model.bindTextTokenized(this.onTextTokenized);
     this.view.bindTokenizationVerified(this.onTokenizationVerified);
+    this.view.bindClearDataVerified(this.onClearDataVerified);
     this.view.bindAddSentence(this.handleAddSentence);
     this.view.bindDeleteSentence(this.handleDeleteSentence);
     this.view.bindSplitParagraph(this.handleSplitParagraph);
@@ -1013,6 +1022,10 @@ class Controller {
 
   onTokenizationVerified = (text) => {
     this.model.tokenizeText(text);
+  };
+
+  onClearDataVerified = () => {
+    this.model.clearData();
   };
 
   // Handles
