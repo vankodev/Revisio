@@ -30,7 +30,7 @@ class Model {
   }
 
   removeEmptyParagraphs(revision) {
-    for (var i = 0; i < revision.length; i++) {
+    for (let i = 0; i < revision.length; i++) {
       if (revision[i].length === 0) {
         revision.splice(i, 1);
       }
@@ -199,7 +199,7 @@ class View {
   }
 
   getElementIndex(element) {
-    var index = 0;
+    let index = 0;
     while ((element = element.previousElementSibling)) {
       index++;
     }
@@ -284,20 +284,20 @@ class View {
   displayRevision(revision) {
     this.paragraphList.innerHTML = '';
 
-    for (var p = 0; p < revision.length; p++) {
+    for (let p = 0; p < revision.length; p++) {
       const paragraph = this.createElement('li', 'paragraph');
       this.paragraphList.appendChild(paragraph);
 
       const sentenceList = this.createElement('ul', 'sentence-list');
       paragraph.appendChild(sentenceList);
 
-      for (var s = 0; s < revision[p].length; s++) {
+      for (let s = 0; s < revision[p].length; s++) {
         const sentence = this.createElement('li', 'sentence');
         sentence.setAttribute('draggable', 'true');
         sentence.tabIndex = 0;
         sentenceList.appendChild(sentence);
 
-        for (var v = 0; v < revision[p][s].length; v++) {
+        for (let v = 0; v < revision[p][s].length; v++) {
           const variant = this.createElement('p', 'variant noselect');
           variant.textContent = revision[p][s][v];
           sentence.appendChild(variant);
@@ -307,18 +307,18 @@ class View {
   }
 
   previewRevision(revision) {
-    var sentencesArray = [];
-    var paragraphsArray = [];
+    let sentencesArray = [];
+    let paragraphsArray = [];
 
     // Filter best sentences
-    for (var p = 0; p < revision.length; p++) {
+    for (let p = 0; p < revision.length; p++) {
       sentencesArray.push([]);
-      for (var s = 0; s < revision[p].length; s++) {
+      for (let s = 0; s < revision[p].length; s++) {
         sentencesArray[p].push(revision[p][s][0]);
       }
     }
 
-    for (var p = 0; p < sentencesArray.length; p++) {
+    for (let p = 0; p < sentencesArray.length; p++) {
       paragraphsArray.push(sentencesArray[p].join(' '));
     }
 
