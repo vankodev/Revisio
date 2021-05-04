@@ -136,14 +136,12 @@ class Model {
     this._commit(this.revision);
   }
 
-  tokenizeText() {
-    var text = document.querySelector('textarea').value;
-
+  tokenizeText(text) {
     // trim spaces
     text = text.replace(/^\s+|\s+$/gm, '\n');
 
     // split into paragraphs
-    var paragraphs = text.split(/\n/);
+    let paragraphs = text.split(/\n/);
 
     // remove empty paragraphs
     paragraphs = paragraphs.filter((p) => p !== '');
@@ -152,12 +150,12 @@ class Model {
     paragraphs = paragraphs.map((p) => (p = p.replace(/\s+/g, ' ')));
 
     // split into sentences
-    var intoSentences = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
+    const intoSentences = /(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s/;
     this.revision = paragraphs.map((p) => p.split(intoSentences));
 
     // put sentences into arrays
-    for (var p = 0; p < this.revision.length; p++) {
-      for (var s = 0; s < this.revision[p].length; s++) {
+    for (let p = 0; p < this.revision.length; p++) {
+      for (let s = 0; s < this.revision[p].length; s++) {
         this.revision[p][s] = [this.revision[p][s]];
       }
     }
@@ -183,9 +181,8 @@ class View {
     this.revision = revision;
   }
 
-  copyToClipboard() {
-    document.querySelector('textarea').select();
-    document.execCommand('copy');
+  bindTokenizationVerified(callback) {
+    this.onTokenizationVerified = callback;
   }
 
   createElement(tag, className) {
@@ -373,6 +370,39 @@ class View {
       },
       { offset: Number.NEGATIVE_INFINITY }
     ).element;
+  }
+
+  verifyTokenization() {
+    const text = document.querySelector('textarea').value;
+
+    if (text) {
+      if (this.revision.length > 0) {
+        if (confirm('Confirm to permanently OVERWRITE the revision!')) {
+          this.onTokenizationVerified(text);
+        } else {
+          return;
+        }
+      } else {
+        this.onTokenizationVerified(text);
+      }
+    }
+  }
+
+  copyToClipboard() {
+    document.querySelector('textarea').select();
+    document.execCommand('copy');
+  }
+
+  startTutorial() {
+    const tutorial = [
+      'Split the paragraphs into sentences by pressing the "Tokenize" button.',
+      'Select a sentence in the "Editor Panel" on the left with a mouse click or by using the following keys: "UpArrow", "DownArrow", "PageUp", "PageDown", "Home", "End". Move a sentence by using "drag and drop" or by pressing the selection keys combined with the "Shift" key. Add a new sentence by pressing the "Enter" key.',
+      'Add a new sentence variant by pressing the "Shift + Enter" keys. Hide sentence variants by pressing the "Esc" key or "LeftArrow" key. Show sentence variants by double-clicking or by pressing the "RightArrow" key. Add a new variant while in the "Variants Mode" by pressing the "Enter" key. Choose the best sentence variant by pressing the "Space" key. Quick edit a variant by pressing the "F2" key.',
+      'Split the paragraph by pressing the "Ctrl + Enter" keys. Join the paragraph with the next one by pressing the "Ctrl + Backspace" keys. Move paragraph up by pressing "Ctrl + <" keys. Move paragraph down by pressing "Ctrl + >" keys.',
+      'To permanently delete a sentence or a variant press the "Delete" key. If you are happy with the revision, copy the revised text from the "Preview Panel" on the right, by pressing the "Copy" button. To permanently clear the revision from the editor and the cache of your browser, press the "Clear" button.',
+    ];
+
+    document.querySelector('textarea').value = tutorial.join('\n\n');
   }
 
   // Event Listeners
@@ -942,6 +972,7 @@ class Controller {
     this.model.bindSentenceDeleted(this.onSentenceDeleted);
     this.model.bindSentenceMoved(this.onSentenceMoved);
     this.model.bindTextTokenized(this.onTextTokenized);
+    this.view.bindTokenizationVerified(this.onTokenizationVerified);
     this.view.bindAddSentence(this.handleAddSentence);
     this.view.bindDeleteSentence(this.handleDeleteSentence);
     this.view.bindSplitParagraph(this.handleSplitParagraph);
@@ -980,7 +1011,11 @@ class Controller {
     this.view.focusOnSentence(0, 0);
   };
 
-  // Handlers
+  onTokenizationVerified = (text) => {
+    this.model.tokenizeText(text);
+  };
+
+  // Handles
   // 'p' is paragraph index, 's' is sentence index
   // 'p2' and 's2' are next position indexes
   handleAddSentence = (text, p, s) => {
