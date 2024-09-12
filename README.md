@@ -6,7 +6,7 @@ A unique text editing tool designed to simplify writing revisions. Written in Va
 
 The purpose of this app is to help users focus on writing instead of copying and pasting by giving them a bird's eye view of their text. It automates tasks like rearranging sentences and paragraphs, and keeps track of different versions of each sentence. Its core strength lies in its keyboard shortcuts, designed to speed up the revision process.
 
-[Live Demo](https://wonderful-goldwasser-3b95e0.netlify.app/)
+[Live Demo](https://revisio.netlify.app/)
 
 ## Key Features
 
