@@ -8,6 +8,8 @@ The purpose of this app is to help users focus on writing instead of copying and
 
 [Live Demo](https://revisio.netlify.app/)
 
+https://github.com/user-attachments/assets/41c2970f-7282-433b-8aff-b7309e3945ee
+
 ## Key Features
 
 - **Data Persistence:** Utilizes localStorage to retain revision data.
